@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanzas FDPO | Control de Caja Chica y Bancos</title>
+    
+    <!-- Tailwind CSS para diseño moderno y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Iconos Phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- jsPDF y jsPDF-AutoTable para generación de reportes PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Forzar visualización en mayúsculas en campos de texto libre */
+        .force-uppercase {
+            text-transform: uppercase;
+        }
+        /* Transiciones suaves de pestañas */
+        .tab-panel {
+            animation: fadeIn 0.2s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Notificación Toast Flotante -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Modal de Confirmación Personalizado (Sin alert/confirm nativos) -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-100 transform transition-all">
+            <div class="flex items-center gap-3 text-red-600 mb-3">
+                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                    <i class="ph-bold ph-warning text-xl"></i>
+                </div>
+                <h3 id="confirm-title" class="text-lg font-bold text-slate-900">Confirmar Acción</h3>
+            </div>
+            <p id="confirm-message" class="text-slate-600 text-sm mb-6 leading-relaxed">
+                ¿Está seguro de realizar esta acción?
+            </p>
+            <div class="flex justify-end gap-3">
+                <button id="confirm-cancel-btn" type="button" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+                    Cancelar
+                </button>
+                <button id="confirm-ok-btn" type="button" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 shadow-sm transition-colors">
+                    Sí, Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cabecera Principal -->
+    <header class="bg-gradient-to-r from-slate-900 via-brand-900 to-slate-900 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl bg-brand-500/20 border border-brand-400/30 flex items-center justify-center text-brand-300 shadow-inner">
+                        <i class="ph-duotone ph-wallet text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-extrabold tracking-tight text-white">Finanzas FDPO</h1>
+                        <p class="text-xs text-brand-200 font-medium">Control de Ingresos y Egresos • Caja Chica y Bancos</p>
+                    </div>
+                </div>
+
+                <!-- Controles Discretos de Respaldo JSON -->
+                <div class="flex items-center gap-2 self-start sm:self-auto">
+                    <button onclick="exportBackupJSON()" title="Descargar respaldo de datos en JSON" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 transition-colors">
+                        <i class="ph ph-download-simple text-sm"></i>
+                        <span>Respaldo</span>
+                    </button>
+                    <label title="Restaurar respaldo desde archivo JSON" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 transition-colors cursor-pointer">
+                        <i class="ph ph-upload-simple text-sm"></i>
+                        <span>Restaurar</span>
+                        <input type="file" id="import-json-input" accept=".json" class="hidden" onchange="importBackupJSON(event)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Tarjetas de Saldos Actuales en Tiempo Real -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <!-- Saldo Caja Chica -->
+                <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-4 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-brand-200 block mb-1">Saldo Actual Caja Chica</span>
+                        <span id="card-saldo-caja" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">L. 0.00</span>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300">
+                        <i class="ph-duotone ph-coins text-2xl"></i>
+                    </div>
+                </div>
+
+                <!-- Saldo Bancos -->
+                <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-4 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-brand-200 block mb-1">Saldo Actual Bancos</span>
+                        <span id="card-saldo-banco" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">L. 0.00</span>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-300">
+                        <i class="ph-duotone ph-bank text-2xl"></i>
+                    </div>
+                </div>
+
+                <!-- Saldo Total General -->
+                <div class="bg-gradient-to-br from-emerald-500/25 to-teal-600/25 backdrop-blur-md border border-emerald-400/30 rounded-2xl p-4 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-200 block mb-1">Saldo Total Consolidado</span>
+                        <span id="card-saldo-total" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">L. 0.00</span>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/30 border border-emerald-400/40 flex items-center justify-center text-emerald-200">
+                        <i class="ph-duotone ph-scales text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navegación por 3 Pestañas -->
+    <div class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex space-x-2 sm:space-x-6 overflow-x-auto py-2" aria-label="Pestañas principales">
+                <button id="tab-btn-nuevo" onclick="switchTab('nuevo')" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap bg-brand-600 text-white shadow-sm">
+                    <i class="ph-bold ph-plus-circle text-lg"></i>
+                    <span>1. Nuevo Movimiento</span>
+                </button>
+                <button id="tab-btn-historial" onclick="switchTab('historial')" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all whitespace-nowrap">
+                    <i class="ph-bold ph-list-dashes text-lg"></i>
+                    <span>2. Historial de Movimientos</span>
+                    <span id="badge-count" class="ml-1 px-2 py-0.5 text-xs rounded-full bg-slate-200 text-slate-700 font-bold">0</span>
+                </button>
+                <button id="tab-btn-resumen" onclick="switchTab('resumen')" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all whitespace-nowrap">
+                    <i class="ph-bold ph-chart-bar text-lg"></i>
+                    <span>3. Resúmenes Mensuales</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+        <!-- ===================================================================== -->
+        <!-- PESTAÑA 1: NUEVO MOVIMIENTO                                           -->
+        <!-- ===================================================================== -->
+        <section id="panel-nuevo" class="tab-panel">
+            <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <!-- Encabezado de Formulario -->
+                <div id="form-header" class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <i id="form-header-icon" class="ph-duotone ph-note-pencil text-2xl text-brand-600"></i>
+                        <div>
+                            <h2 id="form-title" class="text-lg font-bold text-slate-900">Registrar Nuevo Movimiento</h2>
+                            <p id="form-subtitle" class="text-xs text-slate-500">Todos los textos se registran automáticamente en MAYÚSCULAS.</p>
+                        </div>
+                    </div>
+                    <span id="edit-mode-badge" class="hidden px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                        MODO EDICIÓN
+                    </span>
+                </div>
+
+                <!-- Formulario -->
+                <form id="movement-form" class="p-6 space-y-5" novalidate>
+                    <input type="hidden" id="edit-id" value="">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <!-- Fecha del Movimiento -->
+                        <div>
+                            <label for="input-fecha" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                Fecha del Movimiento <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="date" id="input-fecha" required
+                                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow">
+                            </div>
+                        </div>
+
+                        <!-- Tipo de Movimiento (INGRESO / EGRESO) -->
+                        <div>
+                            <label for="input-movimiento" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                Movimiento <span class="text-red-500">*</span>
+                            </label>
+                            <select id="input-movimiento" required
+                                class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow">
+                                <option value="INGRESO">INGRESO (+)</option>
+                                <option value="EGRESO">EGRESO (-)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <!-- Cuenta (CAJA CHICA / BANCO) -->
+                        <div>
+                            <label for="input-cuenta" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                Cuenta <span class="text-red-500">*</span>
+                            </label>
+                            <select id="input-cuenta" required
+                                class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow">
+                                <option value="CAJA CHICA">CAJA CHICA</option>
+                                <option value="BANCO">BANCO</option>
+                            </select>
+                        </div>
+
+                        <!-- Valor en Lempiras L. 000,000.00 -->
+                        <div>
+                            <label for="input-valor" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                Valor L. <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative flex items-center">
+                                <span class="absolute left-3.5 text-sm font-extrabold text-slate-500 select-none">L.</span>
+                                <input type="text" id="input-valor" inputmode="decimal" placeholder="0.00" required autocomplete="off"
+                                    class="w-full rounded-xl border border-slate-300 pl-9 pr-3.5 py-2.5 text-right text-base font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow">
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-1 text-right">Formato: L. 000,000.00</p>
+                        </div>
+                    </div>
+
+                    <!-- Observación (Solo Mayúsculas) -->
+                    <div>
+                        <label for="input-observacion" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Observación / Detalle <span class="text-red-500">*</span>
+                        </label>
+                        <textarea id="input-observacion" rows="3" required placeholder="ESCRIBA AQUÍ EL MOTIVO DEL EGRESO O EL ORIGEN DEL INGRESO..."
+                            class="force-uppercase w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow"></textarea>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="pt-2 flex flex-col sm:flex-row items-center justify-end gap-3">
+                        <button type="button" id="btn-cancel-edit" onclick="cancelEdit()" class="hidden w-full sm:w-auto px-5 py-3 rounded-xl text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center gap-2">
+                            <i class="ph-bold ph-x"></i>
+                            <span>Cancelar Edición</span>
+                        </button>
+                        <button type="submit" id="btn-submit-movement" class="w-full sm:w-auto px-6 py-3 rounded-xl text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-md shadow-brand-600/20 transition-all flex items-center justify-center gap-2">
+                            <i class="ph-bold ph-floppy-disk text-lg"></i>
+                            <span id="btn-submit-text">Guardar Movimiento</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- PESTAÑA 2: HISTORIAL DE MOVIMIENTOS                                   -->
+        <!-- ===================================================================== -->
+        <section id="panel-historial" class="tab-panel hidden">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <!-- Barra Superior y Filtros Rápidos -->
+                <div class="p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Historial de Movimientos</h2>
+                        <p class="text-xs text-slate-500">Ordenados cronológicamente de la fecha más reciente a la más antigua.</p>
+                    </div>
+
+                    <!-- Filtros Discretos -->
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <div class="relative flex-grow sm:flex-grow-0">
+                            <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="filter-search" placeholder="BUSCAR OBSERVACIÓN..." oninput="this.value = this.value.toUpperCase(); renderHistory();"
+                                class="force-uppercase w-full sm:w-52 rounded-xl border border-slate-300 pl-9 pr-3 py-2 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+
+                        <select id="filter-cuenta" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="TODAS">CUENTA: TODAS</option>
+                            <option value="CAJA CHICA">CAJA CHICA</option>
+                            <option value="BANCO">BANCO</option>
+                        </select>
+
+                        <select id="filter-tipo" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="TODOS">TIPO: TODOS</option>
+                            <option value="INGRESO">INGRESOS</option>
+                            <option value="EGRESO">EGRESOS</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tabla Responsiva -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100/80 border-b border-slate-200 text-[11px] font-extrabold uppercase tracking-wider text-slate-600">
+                                <th class="py-3.5 px-4">Fecha</th>
+                                <th class="py-3.5 px-4">Movimiento</th>
+                                <th class="py-3.5 px-4">Cuenta</th>
+                                <th class="py-3.5 px-4 text-right">Valor</th>
+                                <th class="py-3.5 px-4">Observación</th>
+                                <th class="py-3.5 px-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- Filas generadas dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Estado Vacío -->
+                <div id="history-empty-state" class="hidden py-14 px-4 text-center">
+                    <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                        <i class="ph-duotone ph-folder-open text-3xl"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800">No hay movimientos registrados</h3>
+                    <p class="text-xs text-slate-500 mt-1 mb-4">Comience agregando un ingreso o egreso en la pestaña "Nuevo Movimiento".</p>
+                    <button onclick="switchTab('nuevo')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-brand-600 text-white hover:bg-brand-700 transition-colors">
+                        <i class="ph-bold ph-plus"></i>
+                        <span>Registrar Primer Movimiento</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- PESTAÑA 3: RESÚMENES MENSUALES (ENERO A DICIEMBRE)                    -->
+        <!-- ===================================================================== -->
+        <section id="panel-resumen" class="tab-panel hidden">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <!-- Cabecera de Resúmenes y Botón PDF -->
+                <div class="p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Resúmenes Mensuales (Enero – Diciembre)</h2>
+                        <p class="text-xs text-slate-500">Saldos acumulados y actualizados al cierre de cada mes para Caja Chica y Bancos.</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- Selector de Año -->
+                        <div class="flex items-center gap-2 bg-white border border-slate-300 rounded-xl px-3 py-1.5">
+                            <label for="summary-year" class="text-xs font-bold text-slate-500 uppercase">Año:</label>
+                            <select id="summary-year" onchange="renderSummary()" class="text-sm font-extrabold text-slate-900 bg-transparent focus:outline-none cursor-pointer">
+                                <!-- Opciones generadas dinámicamente -->
+                            </select>
+                        </div>
+
+                        <!-- Botón Exportar PDF -->
+                        <button onclick="exportSummaryToPDF()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-sm shadow-rose-600/20 transition-all">
+                            <i class="ph-bold ph-file-pdf text-lg"></i>
+                            <span>Exportar en PDF</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla de Resumen Enero - Diciembre -->
+                <div class="overflow-x-auto">
+                    <table id="summary-table" class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-800 text-white text-[11px] font-bold uppercase tracking-wider">
+                                <th rowspan="2" class="py-3 px-4 border-r border-slate-700">Mes</th>
+                                <th colspan="3" class="py-2 px-3 text-center border-r border-slate-700 bg-amber-900/40 text-amber-200">Caja Chica (L.)</th>
+                                <th colspan="3" class="py-2 px-3 text-center border-r border-slate-700 bg-sky-900/40 text-sky-200">Banco (L.)</th>
+                                <th rowspan="2" class="py-3 px-4 text-right bg-emerald-900/40 text-emerald-200">Saldo Total Consolidado</th>
+                            </tr>
+                            <tr class="bg-slate-700 text-slate-200 text-[10px] font-bold uppercase tracking-wider">
+                                <th class="py-2 px-3 text-right">Ingresos</th>
+                                <th class="py-2 px-3 text-right">Egresos</th>
+                                <th class="py-2 px-3 text-right border-r border-slate-600 text-amber-200">Saldo Caja</th>
+                                <th class="py-2 px-3 text-right">Ingresos</th>
+                                <th class="py-2 px-3 text-right">Egresos</th>
+                                <th class="py-2 px-3 text-right border-r border-slate-600 text-sky-200">Saldo Banco</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summary-table-body" class="divide-y divide-slate-200 text-xs sm:text-sm">
+                            <!-- Filas de Enero a Diciembre generadas dinámicamente -->
+                        </tbody>
+                        <tfoot id="summary-table-foot" class="bg-slate-100 font-extrabold text-slate-900 border-t-2 border-slate-300 text-xs sm:text-sm">
+                            <!-- Totales anuales generados dinámicamente -->
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Nota Informativa sobre Saldos Acumulados -->
+                <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center gap-2 text-xs text-slate-500">
+                    <i class="ph-fill ph-info text-brand-600 text-base shrink-0"></i>
+                    <span>Los saldos mensuales reflejan el balance acumulado real hasta el último día de cada mes, incluyendo saldos arrastrados de periodos anteriores.</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Pie de Página -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+            <span class="font-semibold text-slate-700">Finanzas FDPO © <span id="footer-year"></span></span>
+            <span>Almacenamiento Local Seguro • Moneda: Lempiras (L.)</span>
+        </div>
+    </footer>
+
+    <!-- ========================================================================= -->
+    <!-- LÓGICA DE APLICACIÓN JAVASCRIPT                                           -->
+    <!-- ========================================================================= -->
+    <script>
+        // Clave de almacenamiento en localStorage
+        const STORAGE_KEY = 'finanzas_fdpo_movimientos_v1';
+
+        // Estado global de movimientos
+        let movements = [];
+
+        // Nombres de los 12 meses en español
+        const MONTH_NAMES = [
+            'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+            'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
+        ];
+
+        // -------------------------------------------------------------------------
+        // INICIALIZACIÓN
+        // -------------------------------------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('footer-year').textContent = new Date().getFullYear();
+            
+            // Cargar datos desde localStorage
+            loadMovements();
+            
+            // Configurar fecha actual por defecto en el formulario
+            setTodayDate();
+            
+            // Configurar eventos de entrada (Mayúsculas y formato moneda L.)
+            setupFormInputs();
+            
+            // Renderizar vistas iniciales
+            refreshAllViews();
+        });
+
+        /**
+         * Establece la fecha de hoy en formato YYYY-MM-DD en el campo de fecha
+         */
+        function setTodayDate() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('input-fecha').value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        /**
+         * Carga los movimientos guardados en localStorage
+         */
+        function loadMovements() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) {
+                        movements = parsed;
+                    }
+                }
+            } catch (err) {
+                console.error('Error al leer localStorage:', err);
+                movements = [];
+            }
+        }
+
+        /**
+         * Guarda los movimientos en localStorage
+         */
+        function saveMovements() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(movements));
+            } catch (err) {
+                console.error('Error al guardar en localStorage:', err);
+                showToast('Error al guardar en el almacenamiento local.', 'error');
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // FORMATEO DE MONEDA (L. 000,000.00) Y MAYÚSCULAS
+        // -------------------------------------------------------------------------
+
+        /**
+         * Formatea un número al estándar L. 000,000.00
+         */
+        function formatCurrency(amount) {
+            const num = Number(amount) || 0;
+            const isNegative = num < 0;
+            const absNum = Math.abs(num);
+            const formatted = absNum.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            return `${isNegative ? '-' : ''}L. ${formatted}`;
+        }
+
+        /**
+         * Formatea solo el número con comas y dos decimales (sin el prefijo L.)
+         */
+        function formatNumberInput(amount) {
+            const num = Number(amount) || 0;
+            return num.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        /**
+         * Convierte una cadena formateada (ej: "12,500.50") a número flotante
+         */
+        function parseCurrencyInput(str) {
+            if (!str) return 0;
+            const cleaned = str.toString().replace(/[^0-9.]/g, '');
+            const val = parseFloat(cleaned);
+            return isNaN(val) ? 0 : Math.round(val * 100) / 100;
+        }
+
+        /**
+         * Configura listeners en los inputs del formulario
+         */
+        function setupFormInputs() {
+            // 1. Forzar mayúsculas en Observación mientras se escribe
+            const obsInput = document.getElementById('input-observacion');
+            obsInput.addEventListener('input', function () {
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.toUpperCase();
+                this.setSelectionRange(start, end);
+            });
+
+            // 2. Formateo inteligente del campo Valor L.
+            const valorInput = document.getElementById('input-valor');
+            
+            valorInput.addEventListener('input', function () {
+                // Permitir solo dígitos y un punto decimal
+                let raw = this.value.replace(/[^0-9.]/g, '');
+                const parts = raw.split('.');
+                if (parts.length > 2) {
+                    raw = parts[0] + '.' + parts.slice(1).join('');
+                }
+                if (parts[1] && parts[1].length > 2) {
+                    raw = parts[0] + '.' + parts[1].substring(0, 2);
+                }
+
+                // Formatear parte entera con comas mientras escribe
+                const [intPart, decPart] = raw.split('.');
+                const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
+                this.value = decPart !== undefined ? `${formattedInt}.${decPart}` : formattedInt;
+            });
+
+            // Al salir del campo (blur), asegurar siempre los 2 decimales (.00)
+            valorInput.addEventListener('blur', function () {
+                const numericVal = parseCurrencyInput(this.value);
+                if (numericVal > 0) {
+                    this.value = formatNumberInput(numericVal);
+                } else {
+                    this.value = '';
+                }
+            });
+
+            // 3. Envío del formulario
+            document.getElementById('movement-form').addEventListener('submit', handleFormSubmit);
+        }
+
+        // -------------------------------------------------------------------------
+        // NAVEGACIÓN ENTRE PESTAÑAS
+        // -------------------------------------------------------------------------
+
+        function switchTab(tabName) {
+            // Ocultar todos los paneles
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+
+            // Resetear estilos de botones
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white', 'shadow-sm', 'font-bold');
+                btn.classList.add('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
+            });
+
+            // Mostrar panel seleccionado
+            document.getElementById(`panel-${tabName}`).classList.remove('hidden');
+
+            // Activar botón seleccionado
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
+            activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-sm', 'font-bold');
+
+            if (tabName === 'historial') {
+                renderHistory();
+            } else if (tabName === 'resumen') {
+                populateYearSelector();
+                renderSummary();
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // GESTIÓN DE MOVIMIENTOS (CREAR, EDITAR, ELIMINAR)
+        // -------------------------------------------------------------------------
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('edit-id').value.trim();
+            const fecha = document.getElementById('input-fecha').value;
+            const movimiento = document.getElementById('input-movimiento').value.toUpperCase();
+            const cuenta = document.getElementById('input-cuenta').value.toUpperCase();
+            const valor = parseCurrencyInput(document.getElementById('input-valor').value);
+            const observacion = document.getElementById('input-observacion').value.trim().toUpperCase();
+
+            // Validaciones
+            if (!fecha) {
+                showToast('Por favor seleccione la fecha del movimiento.', 'error');
+                document.getElementById('input-fecha').focus();
+                return;
+            }
+            if (valor <= 0) {
+                showToast('El valor debe ser mayor a L. 0.00.', 'error');
+                document.getElementById('input-valor').focus();
+                return;
+            }
+            if (!observacion) {
+                showToast('Por favor ingrese una observación o detalle.', 'error');
+                document.getElementById('input-observacion').focus();
+                return;
+            }
+
+            if (editId) {
+                // Actualizar registro existente
+                const index = movements.findIndex(m => m.id === editId);
+                if (index !== -1) {
+                    movements[index] = {
+                        ...movements[index],
+                        fecha,
+                        movimiento,
+                        cuenta,
+                        valor,
+                        observacion,
+                        updatedAt: Date.now()
+                    };
+                    showToast('Movimiento actualizado correctamente.', 'success');
+                }
+                resetFormState();
+            } else {
+                // Crear nuevo registro
+                const newMovement = {
+                    id: 'MOV-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase(),
+                    fecha,
+                    movimiento,
+                    cuenta,
+                    valor,
+                    observacion,
+                    createdAt: Date.now()
+                };
+                movements.push(newMovement);
+                showToast('Movimiento registrado con éxito.', 'success');
+                
+                // Limpiar campos de valor y observación manteniendo fecha/selecciones cómodas
+                document.getElementById('input-valor').value = '';
+                document.getElementById('input-observacion').value = '';
+            }
+
+            saveMovements();
+            refreshAllViews();
+        }
+
+        /**
+         * Carga un movimiento en la Pestaña 1 para su edición
+         */
+        function editMovement(id) {
+            const mov = movements.find(m => m.id === id);
+            if (!mov) return;
+
+            document.getElementById('edit-id').value = mov.id;
+            document.getElementById('input-fecha').value = mov.fecha;
+            document.getElementById('input-movimiento').value = mov.movimiento;
+            document.getElementById('input-cuenta').value = mov.cuenta;
+            document.getElementById('input-valor').value = formatNumberInput(mov.valor);
+            document.getElementById('input-observacion').value = mov.observacion;
+
+            // Actualizar UI a modo edición
+            document.getElementById('form-title').textContent = 'Editar Movimiento Existente';
+            document.getElementById('form-subtitle').textContent = 'Modifique los campos necesarios y presione Actualizar Movimiento.';
+            document.getElementById('edit-mode-badge').classList.remove('hidden');
+            document.getElementById('btn-cancel-edit').classList.remove('hidden');
+            document.getElementById('btn-submit-text').textContent = 'Actualizar Movimiento';
+            document.getElementById('btn-submit-movement').classList.remove('bg-brand-600', 'hover:bg-brand-700');
+            document.getElementById('btn-submit-movement').classList.add('bg-amber-600', 'hover:bg-amber-700');
+
+            // Cambiar automáticamente a la 1ra pestaña
+            switchTab('nuevo');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /**
+         * Cancela el modo edición y restaura el formulario
+         */
+        function cancelEdit() {
+            resetFormState();
+            showToast('Edición cancelada.', 'info');
+        }
+
+        /**
+         * Restaura el estado visual y valores por defecto del formulario
+         */
+        function resetFormState() {
+            document.getElementById('edit-id').value = '';
+            setTodayDate();
+            document.getElementById('input-movimiento').value = 'INGRESO';
+            document.getElementById('input-cuenta').value = 'CAJA CHICA';
+            document.getElementById('input-valor').value = '';
+            document.getElementById('input-observacion').value = '';
+
+            document.getElementById('form-title').textContent = 'Registrar Nuevo Movimiento';
+            document.getElementById('form-subtitle').textContent = 'Todos los textos se registran automáticamente en MAYÚSCULAS.';
+            document.getElementById('edit-mode-badge').classList.add('hidden');
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
+            document.getElementById('btn-submit-text').textContent = 'Guardar Movimiento';
+            document.getElementById('btn-submit-movement').classList.remove('bg-amber-600', 'hover:bg-amber-700');
+            document.getElementById('btn-submit-movement').classList.add('bg-brand-600', 'hover:bg-brand-700');
+        }
+
+        /**
+         * Solicita confirmación y elimina un movimiento
+         */
+        function deleteMovement(id) {
+            const mov = movements.find(m => m.id === id);
+            if (!mov) return;
+
+            openConfirmModal(
+                'Eliminar Movimiento',
+                `¿Está seguro de eliminar este ${mov.movimiento} de ${mov.cuenta} por ${formatCurrency(mov.valor)} con fecha ${formatDateDisplay(mov.fecha)}? Esta acción recalculará los saldos.`,
+                () => {
+                    movements = movements.filter(m => m.id !== id);
+                    // Si se estaba editando justo ese movimiento, resetear formulario
+                    if (document.getElementById('edit-id').value === id) {
+                        resetFormState();
+                    }
+                    saveMovements();
+                    refreshAllViews();
+                    showToast('Movimiento eliminado correctamente.', 'success');
+                }
+            );
+        }
+
+        // -------------------------------------------------------------------------
+        // ACTUALIZACIÓN DE SALDOS Y VISTAS
+        // -------------------------------------------------------------------------
+
+        function refreshAllViews() {
+            updateTopBalanceCards();
+            document.getElementById('badge-count').textContent = movements.length;
+            renderHistory();
+            populateYearSelector();
+            renderSummary();
+        }
+
+        /**
+         * Calcula y actualiza las 3 tarjetas superiores de saldo actual
+         */
+        function updateTopBalanceCards() {
+            let saldoCaja = 0;
+            let saldoBanco = 0;
+
+            movements.forEach(m => {
+                const factor = m.movimiento === 'INGRESO' ? 1 : -1;
+                if (m.cuenta === 'CAJA CHICA') {
+                    saldoCaja += m.valor * factor;
+                } else if (m.cuenta === 'BANCO') {
+                    saldoBanco += m.valor * factor;
+                }
+            });
+
+            const saldoTotal = saldoCaja + saldoBanco;
+
+            document.getElementById('card-saldo-caja').textContent = formatCurrency(saldoCaja);
+            document.getElementById('card-saldo-banco').textContent = formatCurrency(saldoBanco);
+            document.getElementById('card-saldo-total').textContent = formatCurrency(saldoTotal);
+        }
+
+        /**
+         * Formatea fecha YYYY-MM-DD a DD/MM/YYYY para visualización
+         */
+        function formatDateDisplay(isoDate) {
+            if (!isoDate) return '';
+            const [y, m, d] = isoDate.split('-');
+            return `${d}/${m}/${y}`;
+        }
+
+        /**
+         * Renderiza la tabla de historial (Pestaña 2) ordenada de más reciente a más antigua
+         */
+        function renderHistory() {
+            const tbody = document.getElementById('history-table-body');
+            const emptyState = document.getElementById('history-empty-state');
+
+            const searchFilter = document.getElementById('filter-search').value.trim().toUpperCase();
+            const cuentaFilter = document.getElementById('filter-cuenta').value;
+            const tipoFilter = document.getElementById('filter-tipo').value;
+
+            // Ordenar estrictamente de fecha más reciente a más antigua (y por creación descendente en misma fecha)
+            const sorted = [...movements].sort((a, b) => {
+                if (a.fecha !== b.fecha) {
+                    return b.fecha.localeCompare(a.fecha);
+                }
+                return (b.createdAt || 0) - (a.createdAt || 0);
+            });
+
+            // Aplicar filtros
+            const filtered = sorted.filter(m => {
+                if (cuentaFilter !== 'TODAS' && m.cuenta !== cuentaFilter) return false;
+                if (tipoFilter !== 'TODOS' && m.movimiento !== tipoFilter) return false;
+                if (searchFilter && !m.observacion.includes(searchFilter)) return false;
+                return true;
+            });
+
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filtered.forEach(m => {
+                const isIngreso = m.movimiento === 'INGRESO';
+                const badgeClass = isIngreso
+                    ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                    : 'bg-rose-100 text-rose-800 border-rose-200';
+                const iconClass = isIngreso ? 'ph-arrow-down-left' : 'ph-arrow-up-right';
+                const amountColor = isIngreso ? 'text-emerald-700' : 'text-rose-700';
+
+                const cuentaBadge = m.cuenta === 'CAJA CHICA'
+                    ? 'bg-amber-50 text-amber-800 border-amber-200'
+                    : 'bg-sky-50 text-sky-800 border-sky-200';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/90 transition-colors';
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 whitespace-nowrap font-semibold text-slate-700">
+                        ${formatDateDisplay(m.fecha)}
+                    </td>
+                    <td class="py-3.5 px-4 whitespace-nowrap">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border ${badgeClass}">
+                            <i class="ph-bold ${iconClass}"></i>
+                            ${m.movimiento}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold border ${cuentaBadge}">
+                            ${m.cuenta}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 whitespace-nowrap text-right font-extrabold ${amountColor}">
+                        ${isIngreso ? '+' : '-'} ${formatCurrency(m.valor)}
+                    </td>
+                    <td class="py-3.5 px-4 font-medium text-slate-700 max-w-xs sm:max-w-md break-words">
+                        ${escapeHTML(m.observacion)}
+                    </td>
+                    <td class="py-3.5 px-4 whitespace-nowrap text-center">
+                        <div class="inline-flex items-center gap-1.5">
+                            <button onclick="editMovement('${m.id}')" title="Editar movimiento"
+                                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors">
+                                <i class="ph-bold ph-pencil-simple"></i>
+                                <span>Editar</span>
+                            </button>
+                            <button onclick="deleteMovement('${m.id}')" title="Eliminar movimiento"
+                                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors">
+                                <i class="ph-bold ph-trash"></i>
+                                <span>Eliminar</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // -------------------------------------------------------------------------
+        // RESÚMENES MENSUALES (ENERO A DICIEMBRE) Y CÁLCULO ACUMULADO
+        // -------------------------------------------------------------------------
+
+        function populateYearSelector() {
+            const select = document.getElementById('summary-year');
+            const currentSelection = select.value;
+            const currentYear = new Date().getFullYear();
+
+            // Obtener años únicos de los movimientos + año actual
+            const yearsSet = new Set([currentYear]);
+            movements.forEach(m => {
+                if (m.fecha) {
+                    const y = parseInt(m.fecha.split('-')[0], 10);
+                    if (!isNaN(y)) yearsSet.add(y);
+                }
+            });
+
+            const sortedYears = Array.from(yearsSet).sort((a, b) => b - a);
+            select.innerHTML = '';
+
+            sortedYears.forEach(y => {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y;
+                select.appendChild(opt);
+            });
+
+            if (currentSelection && yearsSet.has(parseInt(currentSelection, 10))) {
+                select.value = currentSelection;
+            } else {
+                select.value = currentYear;
+            }
+        }
+
+        /**
+         * Calcula la estructura de datos mensual de Enero a Diciembre para el año dado
+         */
+        function calculateYearlySummaryData(year) {
+            // Calcular saldo inicial arrastrado de años anteriores al año seleccionado
+            let runningCaja = 0;
+            let runningBanco = 0;
+
+            movements.forEach(m => {
+                const movYear = parseInt(m.fecha.split('-')[0], 10);
+                if (movYear < year) {
+                    const factor = m.movimiento === 'INGRESO' ? 1 : -1;
+                    if (m.cuenta === 'CAJA CHICA') runningCaja += m.valor * factor;
+                    if (m.cuenta === 'BANCO') runningBanco += m.valor * factor;
+                }
+            });
+
+            const rows = [];
+            let totalIngCaja = 0;
+            let totalEgrCaja = 0;
+            let totalIngBanco = 0;
+            let totalEgrBanco = 0;
+
+            for (let monthIdx = 0; monthIdx < 12; monthIdx++) {
+                let ingCaja = 0;
+                let egrCaja = 0;
+                let ingBanco = 0;
+                let egrBanco = 0;
+
+                movements.forEach(m => {
+                    const [yStr, mStr] = m.fecha.split('-');
+                    const movYear = parseInt(yStr, 10);
+                    const movMonth = parseInt(mStr, 10) - 1;
+
+                    if (movYear === year && movMonth === monthIdx) {
+                        if (m.cuenta === 'CAJA CHICA') {
+                            if (m.movimiento === 'INGRESO') ingCaja += m.valor;
+                            else egrCaja += m.valor;
+                        } else if (m.cuenta === 'BANCO') {
+                            if (m.movimiento === 'INGRESO') ingBanco += m.valor;
+                            else egrBanco += m.valor;
+                        }
+                    }
+                });
+
+                // Actualizar saldos acumulados al cierre del mes
+                runningCaja += (ingCaja - egrCaja);
+                runningBanco += (ingBanco - egrBanco);
+                const saldoConsolidado = runningCaja + runningBanco;
+
+                totalIngCaja += ingCaja;
+                totalEgrCaja += egrCaja;
+                totalIngBanco += ingBanco;
+                totalEgrBanco += egrBanco;
+
+                rows.push({
+                    monthName: MONTH_NAMES[monthIdx],
+                    ingCaja,
+                    egrCaja,
+                    saldoCaja: runningCaja,
+                    ingBanco,
+                    egrBanco,
+                    saldoBanco: runningBanco,
+                    saldoConsolidado
+                });
+            }
+
+            return {
+                year,
+                rows,
+                totals: {
+                    totalIngCaja,
+                    totalEgrCaja,
+                    finalSaldoCaja: runningCaja,
+                    totalIngBanco,
+                    totalEgrBanco,
+                    finalSaldoBanco: runningBanco,
+                    finalSaldoConsolidado: runningCaja + runningBanco
+                }
+            };
+        }
+
+        /**
+         * Renderiza la tabla de resumen de Enero a Diciembre (Pestaña 3)
+         */
+        function renderSummary() {
+            const year = parseInt(document.getElementById('summary-year').value, 10) || new Date().getFullYear();
+            const data = calculateYearlySummaryData(year);
+
+            const tbody = document.getElementById('summary-table-body');
+            const tfoot = document.getElementById('summary-table-foot');
+
+            tbody.innerHTML = '';
+
+            data.rows.forEach((r, idx) => {
+                const hasActivity = r.ingCaja > 0 || r.egrCaja > 0 || r.ingBanco > 0 || r.egrBanco > 0;
+                const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+
+                const tr = document.createElement('tr');
+                tr.className = `${rowBg} hover:bg-brand-50/40 transition-colors`;
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-bold text-slate-800 border-r border-slate-200">
+                        ${r.monthName}
+                    </td>
+                    <td class="py-3 px-3 text-right font-medium ${r.ingCaja > 0 ? 'text-emerald-700' : 'text-slate-400'}">
+                        ${formatCurrency(r.ingCaja)}
+                    </td>
+                    <td class="py-3 px-3 text-right font-medium ${r.egrCaja > 0 ? 'text-rose-700' : 'text-slate-400'}">
+                        ${formatCurrency(r.egrCaja)}
+                    </td>
+                    <td class="py-3 px-3 text-right font-bold border-r border-slate-200 bg-amber-50/40 ${r.saldoCaja < 0 ? 'text-rose-700' : 'text-slate-900'}">
+                        ${formatCurrency(r.saldoCaja)}
+                    </td>
+                    <td class="py-3 px-3 text-right font-medium ${r.ingBanco > 0 ? 'text-emerald-700' : 'text-slate-400'}">
+                        ${formatCurrency(r.ingBanco)}
+                    </td>
+                    <td class="py-3 px-3 text-right font-medium ${r.egrBanco > 0 ? 'text-rose-700' : 'text-slate-400'}">
+                        ${formatCurrency(r.egrBanco)}
+                    </td>
+                    <td class="py-3 px-3 text-right font-bold border-r border-slate-200 bg-sky-50/40 ${r.saldoBanco < 0 ? 'text-rose-700' : 'text-slate-900'}">
+                        ${formatCurrency(r.saldoBanco)}
+                    </td>
+                    <td class="py-3 px-4 text-right font-extrabold bg-emerald-50/40 ${r.saldoConsolidado < 0 ? 'text-rose-700' : 'text-emerald-900'}">
+                        ${formatCurrency(r.saldoConsolidado)}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const t = data.totals;
+            tfoot.innerHTML = `
+                <tr>
+                    <td class="py-3.5 px-4 border-r border-slate-300">TOTAL / CIERRE ${year}</td>
+                    <td class="py-3.5 px-3 text-right text-emerald-700">${formatCurrency(t.totalIngCaja)}</td>
+                    <td class="py-3.5 px-3 text-right text-rose-700">${formatCurrency(t.totalEgrCaja)}</td>
+                    <td class="py-3.5 px-3 text-right border-r border-slate-300 bg-amber-100/60">${formatCurrency(t.finalSaldoCaja)}</td>
+                    <td class="py-3.5 px-3 text-right text-emerald-700">${formatCurrency(t.totalIngBanco)}</td>
+                    <td class="py-3.5 px-3 text-right text-rose-700">${formatCurrency(t.totalEgrBanco)}</td>
+                    <td class="py-3.5 px-3 text-right border-r border-slate-300 bg-sky-100/60">${formatCurrency(t.finalSaldoBanco)}</td>
+                    <td class="py-3.5 px-4 text-right bg-emerald-100/70 text-emerald-950">${formatCurrency(t.finalSaldoConsolidado)}</td>
+                </tr>
+            `;
+        }
+
+        // -------------------------------------------------------------------------
+        // EXPORTACIÓN A PDF (CON SELECCIÓN DE CARPETA O DESCARGA ESTÁNDAR)
+        // -------------------------------------------------------------------------
+
+        async function exportSummaryToPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter' });
+
+                const year = parseInt(document.getElementById('summary-year').value, 10) || new Date().getFullYear();
+                const data = calculateYearlySummaryData(year);
+                const now = new Date();
+                const fechaGen = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+                // Encabezado del Documento PDF
+                doc.setFillColor(12, 74, 110); // Azul corporativo oscuro
+                doc.rect(0, 0, 280, 26, 'F');
+
+                doc.setTextColor(255, 255, 255);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(18);
+                doc.text('FINANZAS FDPO', 14, 12);
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.text(`RESUMEN ANUAL DE CAJA CHICA Y BANCOS (ENERO - DICIEMBRE ${year})`, 14, 19);
+
+                doc.setFontSize(9);
+                doc.text(`Generado: ${fechaGen}`, 265, 12, { align: 'right' });
+                doc.text('Moneda: Lempiras (L.)', 265, 19, { align: 'right' });
+
+                // Cuadros resumen de saldos actuales
+                doc.setTextColor(30, 41, 59);
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`SALDO CIERRE CAJA CHICA (${year}): ${formatCurrency(data.totals.finalSaldoCaja)}`, 14, 34);
+                doc.text(`SALDO CIERRE BANCO (${year}): ${formatCurrency(data.totals.finalSaldoBanco)}`, 105, 34);
+                doc.text(`SALDO CONSOLIDADO (${year}): ${formatCurrency(data.totals.finalSaldoConsolidado)}`, 190, 34);
+
+                // Construir cuerpo de tabla para AutoTable
+                const tableBody = data.rows.map(r => [
+                    r.monthName,
+                    formatCurrency(r.ingCaja),
+                    formatCurrency(r.egrCaja),
+                    formatCurrency(r.saldoCaja),
+                    formatCurrency(r.ingBanco),
+                    formatCurrency(r.egrBanco),
+                    formatCurrency(r.saldoBanco),
+                    formatCurrency(r.saldoConsolidado)
+                ]);
+
+                // Fila de totales al final
+                tableBody.push([
+                    `TOTAL / CIERRE ${year}`,
+                    formatCurrency(data.totals.totalIngCaja),
+                    formatCurrency(data.totals.totalEgrCaja),
+                    formatCurrency(data.totals.finalSaldoCaja),
+                    formatCurrency(data.totals.totalIngBanco),
+                    formatCurrency(data.totals.totalEgrBanco),
+                    formatCurrency(data.totals.finalSaldoBanco),
+                    formatCurrency(data.totals.finalSaldoConsolidado)
+                ]);
+
+                doc.autoTable({
+                    startY: 39,
+                    head: [
+                        [
+                            { content: 'MES', rowSpan: 2, styles: { halign: 'left', valign: 'middle' } },
+                            { content: 'CAJA CHICA (L.)', colSpan: 3, styles: { halign: 'center', fillColor: [146, 64, 14] } },
+                            { content: 'BANCO (L.)', colSpan: 3, styles: { halign: 'center', fillColor: [3, 105, 161] } },
+                            { content: 'SALDO TOTAL\nCONSOLIDADO', rowSpan: 2, styles: { halign: 'right', valign: 'middle', fillColor: [6, 95, 70] } }
+                        ],
+                        [
+                            { content: 'INGRESOS', styles: { halign: 'right' } },
+                            { content: 'EGRESOS', styles: { halign: 'right' } },
+                            { content: 'SALDO CAJA', styles: { halign: 'right' } },
+                            { content: 'INGRESOS', styles: { halign: 'right' } },
+                            { content: 'EGRESOS', styles: { halign: 'right' } },
+                            { content: 'SALDO BANCO', styles: { halign: 'right' } }
+                        ]
+                    ],
+                    body: tableBody,
+                    theme: 'grid',
+                    styles: {
+                        font: 'helvetica',
+                        fontSize: 8.5,
+                        cellPadding: 2.8,
+                        lineColor: [203, 213, 225],
+                        lineWidth: 0.2
+                    },
+                    headStyles: {
+                        fillColor: [30, 41, 59],
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold',
+                        fontSize: 8
+                    },
+                    columnStyles: {
+                        0: { fontStyle: 'bold', cellWidth: 30 },
+                        1: { halign: 'right' },
+                        2: { halign: 'right' },
+                        3: { halign: 'right', fontStyle: 'bold', fillColor: [255, 251, 235] },
+                        4: { halign: 'right' },
+                        5: { halign: 'right' },
+                        6: { halign: 'right', fontStyle: 'bold', fillColor: [240, 249, 255] },
+                        7: { halign: 'right', fontStyle: 'bold', fillColor: [236, 253, 245] }
+                    },
+                    didParseCell: function (hookData) {
+                        // Resaltar fila final de totales
+                        if (hookData.section === 'body' && hookData.row.index === 12) {
+                            hookData.cell.styles.fontStyle = 'bold';
+                            hookData.cell.styles.fillColor = [226, 232, 240];
+                            hookData.cell.styles.textColor = [15, 23, 42];
+                        }
+                    }
+                });
+
+                const fileName = `Finanzas_FDPO_Resumen_${year}.pdf`;
+                const pdfBlob = doc.output('blob');
+
+                // Intentar abrir selector nativo de carpeta/archivo si el navegador lo soporta (Chrome/Edge)
+                if (window.showSaveFilePicker) {
+                    try {
+                        const fileHandle = await window.showSaveFilePicker({
+                            suggestedName: fileName,
+                            types: [{
+                                description: 'Documento PDF',
+                                accept: { 'application/pdf': ['.pdf'] }
+                            }]
+                        });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(pdfBlob);
+                        await writable.close();
+                        showToast('PDF guardado exitosamente en la carpeta seleccionada.', 'success');
+                        return;
+                    } catch (pickerErr) {
+                        // Si el usuario canceló el diálogo, no descargar duplicado
+                        if (pickerErr.name === 'AbortError') {
+                            return;
+                        }
+                        // Si falló por restricciones de iframe/sandbox, continuar a descarga estándar
+                    }
+                }
+
+                // Respaldo universal de descarga estándar (Firefox, Safari, Móviles, GitHub Pages)
+                doc.save(fileName);
+                showToast('Reporte PDF descargado correctamente.', 'success');
+
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                showToast('Ocurrió un error al generar el archivo PDF.', 'error');
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // RESPALDO Y RESTAURACIÓN JSON (OPCIONAL / DISCRETO)
+        // -------------------------------------------------------------------------
+
+        function exportBackupJSON() {
+            const dataStr = JSON.stringify(movements, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const today = new Date().toISOString().split('T')[0];
+            a.href = url;
+            a.download = `Respaldo_Finanzas_FDPO_${today}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Respaldo JSON descargado.', 'success');
+        }
+
+        function importBackupJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!Array.isArray(imported)) {
+                        throw new Error('Formato inválido');
+                    }
+                    // Normalizar registros importados
+                    movements = imported.map(item => ({
+                        id: item.id || ('MOV-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6)),
+                        fecha: item.fecha || new Date().toISOString().split('T')[0],
+                        movimiento: (item.movimiento || 'INGRESO').toUpperCase(),
+                        cuenta: (item.cuenta || 'CAJA CHICA').toUpperCase(),
+                        valor: Number(item.valor) || 0,
+                        observacion: (item.observacion || '').toUpperCase(),
+                        createdAt: item.createdAt || Date.now()
+                    }));
+                    saveMovements();
+                    refreshAllViews();
+                    showToast(`Se restauraron ${movements.length} movimientos correctamente.`, 'success');
+                } catch (err) {
+                    showToast('El archivo seleccionado no es un respaldo válido.', 'error');
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // -------------------------------------------------------------------------
+        // UTILIDADES DE UI (TOASTS, MODAL DE CONFIRMACIÓN, SEGURIDAD XSS)
+        // -------------------------------------------------------------------------
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const styles = {
+                success: 'bg-emerald-900 text-white border-emerald-700',
+                error: 'bg-rose-900 text-white border-rose-700',
+                info: 'bg-slate-900 text-white border-slate-700'
+            };
+
+            const icons = {
+                success: 'ph-check-circle text-emerald-400',
+                error: 'ph-warning-circle text-rose-400',
+                info: 'ph-info text-sky-400'
+            };
+
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-lg border text-xs sm:text-sm font-semibold transition-all duration-300 transform translate-y-2 opacity-0 ${styles[type] || styles.info}`;
+            toast.innerHTML = `
+                <i class="ph-fill ${icons[type] || icons.info} text-lg shrink-0"></i>
+                <span>${escapeHTML(message)}</span>
+            `;
+
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        let confirmCallback = null;
+
+        function openConfirmModal(title, message, onConfirm) {
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-message').textContent = message;
+            confirmCallback = onConfirm;
+
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            confirmCallback = null;
+        }
+
+        document.getElementById('confirm-cancel-btn').addEventListener('click', closeConfirmModal);
+        document.getElementById('confirm-ok-btn').addEventListener('click', () => {
+            if (typeof confirmCallback === 'function') {
+                confirmCallback();
+            }
+            closeConfirmModal();
+        });
+
+        function escapeHTML(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
