@@ -169,6 +169,26 @@
                 </div>
             </div>
 
+            <!-- Disponibilidad Actual por Fondo / Asignación -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i class="ph-duotone ph-folders text-xl text-brand-600"></i>
+                            <span>Disponibilidad Actual por Fondo / Asignación</span>
+                        </h3>
+                        <p class="text-xs text-slate-500">La suma de todos los fondos equivale exactamente al Saldo Total Consolidado (Caja + Bancos).</p>
+                    </div>
+                    <button onclick="openFundModal('create')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-colors self-start sm:self-auto">
+                        <i class="ph-bold ph-folder-plus text-sm"></i>
+                        <span>+ Nuevo Fondo</span>
+                    </button>
+                </div>
+                <div id="dash-funds-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                    <!-- Tarjetas de fondos generadas dinámicamente -->
+                </div>
+            </div>
+
             <!-- Sección Inferior del Dashboard: Resumen del Mes Actual + Últimos 5 Movimientos -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
@@ -249,7 +269,7 @@
                                 <thead>
                                     <tr class="bg-slate-100/70 border-b border-slate-200 text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
                                         <th class="py-2.5 px-4">Fecha</th>
-                                        <th class="py-2.5 px-4">Cuenta</th>
+                                        <th class="py-2.5 px-4">Cuenta / Fondo</th>
                                         <th class="py-2.5 px-4">Observación</th>
                                         <th class="py-2.5 px-4 text-right">Valor</th>
                                     </tr>
@@ -339,18 +359,39 @@
                             </select>
                         </div>
 
-                        <!-- Valor en Lempiras L. 000,000.00 -->
+                        <!-- Fondo / Asignación (APORTACIONES, PROYECTO, + Crear / Editar) -->
                         <div>
-                            <label for="input-valor" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                                Valor L. <span class="text-red-500">*</span>
+                            <label for="input-fondo" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                Fondo / Asignación <span class="text-red-500">*</span>
                             </label>
-                            <div class="relative flex items-center">
-                                <span class="absolute left-3.5 text-sm font-extrabold text-slate-500 select-none">L.</span>
-                                <input type="text" id="input-valor" inputmode="decimal" placeholder="0.00" required autocomplete="off"
-                                    class="w-full rounded-xl border border-slate-300 pl-9 pr-3.5 py-2.5 text-right text-base font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow">
+                            <div class="flex items-center gap-1.5">
+                                <select id="input-fondo" required
+                                    class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow">
+                                    <!-- Opciones de fondos generadas dinámicamente -->
+                                </select>
+                                <button type="button" onclick="openFundModal('create')" title="Crear nuevo fondo"
+                                    class="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors shrink-0">
+                                    <i class="ph-bold ph-plus text-base"></i>
+                                </button>
+                                <button type="button" onclick="openFundModal('edit')" title="Editar nombre del fondo seleccionado"
+                                    class="p-2.5 rounded-xl bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 transition-colors shrink-0">
+                                    <i class="ph-bold ph-pencil-simple text-base"></i>
+                                </button>
                             </div>
-                            <p class="text-[11px] text-slate-400 mt-1 text-right">Formato: L. 000,000.00</p>
                         </div>
+                    </div>
+
+                    <!-- Valor en Lempiras L. 000,000.00 -->
+                    <div>
+                        <label for="input-valor" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Valor L. <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative flex items-center">
+                            <span class="absolute left-3.5 text-sm font-extrabold text-slate-500 select-none">L.</span>
+                            <input type="text" id="input-valor" inputmode="decimal" placeholder="0.00" required autocomplete="off"
+                                class="w-full rounded-xl border border-slate-300 pl-9 pr-3.5 py-2.5 text-right text-base font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow">
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1 text-right">Formato: L. 000,000.00</p>
                     </div>
 
                     <!-- Observación (Solo Mayúsculas) -->
@@ -403,6 +444,10 @@
                             <option value="BANCO">BANCO</option>
                         </select>
 
+                        <select id="filter-fondo" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="TODOS">FONDO: TODOS</option>
+                        </select>
+
                         <select id="filter-tipo" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="TODOS">TIPO: TODOS</option>
                             <option value="INGRESO">INGRESOS</option>
@@ -419,6 +464,7 @@
                                 <th class="py-3.5 px-4">Fecha</th>
                                 <th class="py-3.5 px-4">Movimiento</th>
                                 <th class="py-3.5 px-4">Cuenta</th>
+                                <th class="py-3.5 px-4">Fondo</th>
                                 <th class="py-3.5 px-4 text-right">Valor</th>
                                 <th class="py-3.5 px-4">Observación</th>
                                 <th class="py-3.5 px-4 text-center">Acciones</th>
@@ -506,6 +552,30 @@
                 <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center gap-2 text-xs text-slate-500">
                     <i class="ph-fill ph-info text-brand-600 text-base shrink-0"></i>
                     <span>Los saldos mensuales reflejan el balance acumulado real hasta el último día de cada mes, incluyendo saldos arrastrados de periodos anteriores.</span>
+                </div>
+
+                <!-- Desglose Anual por Fondo / Asignación -->
+                <div class="p-5 border-t border-slate-200 bg-white">
+                    <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-800 mb-3 flex items-center gap-2">
+                        <i class="ph-duotone ph-folders text-lg text-brand-600"></i>
+                        <span>Resumen Anual por Fondo / Asignación (<span id="summary-fund-year-label"></span>)</span>
+                    </h3>
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-800 text-white text-[11px] font-bold uppercase tracking-wider">
+                                    <th class="py-2.5 px-4">Fondo / Asignación</th>
+                                    <th class="py-2.5 px-4 text-right">Saldo Inicial Arrastrado</th>
+                                    <th class="py-2.5 px-4 text-right">Ingresos del Año</th>
+                                    <th class="py-2.5 px-4 text-right">Egresos del Año</th>
+                                    <th class="py-2.5 px-4 text-right bg-indigo-900/60 text-indigo-200">Saldo Disponible Actual</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summary-funds-body" class="divide-y divide-slate-200 text-xs sm:text-sm">
+                                <!-- Filas de resumen por fondo generadas dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -661,10 +731,13 @@
                                     Descontar también como <strong>EGRESO</strong> en Caja Chica o Banco
                                 </span>
                             </label>
-                            <div id="asset-finance-account-wrapper" class="hidden pl-6">
+                            <div id="asset-finance-account-wrapper" class="hidden pl-6 space-y-2">
                                 <select id="asset-finance-cuenta" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-bold text-slate-800 bg-white">
                                     <option value="CAJA CHICA">DESCONTAR DE: CAJA CHICA</option>
                                     <option value="BANCO">DESCONTAR DE: BANCO</option>
+                                </select>
+                                <select id="asset-finance-fondo" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-bold text-slate-800 bg-white">
+                                    <!-- Fondos generados dinámicamente -->
                                 </select>
                             </div>
                         </div>
@@ -788,17 +861,57 @@
         </div>
     </div>
 
+    <!-- Modal para Crear o Editar Fondo / Asignación -->
+    <div id="fund-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-start gap-3">
+                <div id="fund-modal-icon-box" class="w-10 h-10 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center shrink-0">
+                    <i id="fund-modal-icon" class="ph-bold ph-folder-plus text-xl"></i>
+                </div>
+                <div class="w-full">
+                    <h3 id="fund-modal-title" class="text-base font-bold text-slate-900">Crear Nuevo Fondo</h3>
+                    <p id="fund-modal-subtitle" class="text-xs text-slate-500 mt-0.5">El nombre se guardará automáticamente en MAYÚSCULAS.</p>
+                </div>
+            </div>
+
+            <form id="fund-modal-form" class="space-y-4" onsubmit="handleFundModalSubmit(event)">
+                <input type="hidden" id="fund-modal-mode" value="create">
+                <input type="hidden" id="fund-modal-old-name" value="">
+
+                <div>
+                    <label for="fund-modal-input" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Nombre del Fondo <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="fund-modal-input" required placeholder="EJ: DONACIONES, EVENTOS, PROYECTO..."
+                        oninput="this.value = this.value.toUpperCase()"
+                        class="force-uppercase w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-1">
+                    <button type="button" onclick="closeFundModal()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="fund-modal-submit-btn" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 transition-colors">
+                        Guardar Fondo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- ========================================================================= -->
     <!-- LÓGICA DE APLICACIÓN JAVASCRIPT                                           -->
     <!-- ========================================================================= -->
     <script>
-        // Clave de almacenamiento en localStorage
+        // Claves de almacenamiento en localStorage
         const STORAGE_KEY = 'finanzas_fdpo_movimientos_v1';
         const ASSETS_STORAGE_KEY = 'finanzas_fdpo_bienes_v1';
+        const FUNDS_STORAGE_KEY = 'finanzas_fdpo_fondos_v1';
 
-        // Estado global de movimientos y bienes
+        // Estado global de movimientos, bienes y fondos
         let movements = [];
         let assets = [];
+        let funds = ['APORTACIONES', 'PROYECTO'];
 
         // Nombres de los 12 meses en español
         const MONTH_NAMES = [
@@ -806,15 +919,17 @@
             'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
         ];
 
-        // -------------------------------------------------------------------------
-        // INICIALIZACIÓN
-        // -------------------------------------------------------------------------
+        // Inicialización al cargar la página
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('footer-year').textContent = new Date().getFullYear();
             
             // Cargar datos desde localStorage
+            loadFunds();
             loadMovements();
             loadAssets();
+            
+            // Poblar selectores de fondos
+            populateFundSelectors();
             
             // Configurar fecha actual por defecto en los formularios
             setTodayDate();
@@ -828,17 +943,43 @@
         });
 
         /**
-         * Establece la fecha de hoy en formato YYYY-MM-DD en los campos de fecha
+         * Establece la fecha actual del sistema en los selectores de fecha
          */
         function setTodayDate() {
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            const isoToday = `${yyyy}-${mm}-${dd}`;
-            document.getElementById('input-fecha').value = isoToday;
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${yyyy}-${mm}-${dd}`;
+
+            const inputFecha = document.getElementById('input-fecha');
+            if (inputFecha) inputFecha.value = todayStr;
+
             const assetFecha = document.getElementById('asset-fecha');
-            if (assetFecha) assetFecha.value = isoToday;
+            if (assetFecha) assetFecha.value = todayStr;
+        }
+
+        /**
+         * Cambia entre las pestañas principales de la aplicación
+         */
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white', 'shadow-sm', 'font-bold');
+                btn.classList.add('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
+            });
+
+            const activePanel = document.getElementById(`panel-${tabName}`);
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+
+            if (activePanel) activePanel.classList.remove('hidden');
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
+                activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-sm', 'font-bold');
+            }
         }
 
         /**
@@ -856,6 +997,172 @@
             } catch (err) {
                 console.error('Error al leer localStorage:', err);
                 movements = [];
+            }
+        }
+
+        /**
+         * Carga el catálogo dinámico de fondos en localStorage
+         */
+        function loadFunds() {
+            try {
+                const raw = localStorage.getItem(FUNDS_STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        funds = Array.from(new Set(parsed.map(f => String(f).trim().toUpperCase()).filter(Boolean)));
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.error('Error al leer fondos:', err);
+            }
+            funds = ['APORTACIONES', 'PROYECTO'];
+            saveFunds();
+        }
+
+        /**
+         * Guarda el catálogo de fondos en localStorage
+         */
+        function saveFunds() {
+            try {
+                localStorage.setItem(FUNDS_STORAGE_KEY, JSON.stringify(funds));
+            } catch (err) {
+                console.error('Error al guardar fondos:', err);
+            }
+        }
+
+        /**
+         * Actualiza todos los selectores desplegables de fondos en la aplicación
+         */
+        function populateFundSelectors(selectedValue = null) {
+            const inputFondo = document.getElementById('input-fondo');
+            const filterFondo = document.getElementById('filter-fondo');
+            const assetFondo = document.getElementById('asset-finance-fondo');
+
+            const currentInputVal = selectedValue || (inputFondo ? inputFondo.value : funds[0]);
+            const currentFilterVal = filterFondo ? filterFondo.value : 'TODOS';
+            const currentAssetVal = assetFondo ? assetFondo.value : funds[0];
+
+            if (inputFondo) {
+                inputFondo.innerHTML = funds.map(f => `<option value="${escapeHTML(f)}">${escapeHTML(f)}</option>`).join('');
+                if (funds.includes(currentInputVal)) {
+                    inputFondo.value = currentInputVal;
+                }
+            }
+
+            if (filterFondo) {
+                filterFondo.innerHTML = `<option value="TODOS">FONDO: TODOS</option>` +
+                    funds.map(f => `<option value="${escapeHTML(f)}">${escapeHTML(f)}</option>`).join('');
+                if (currentFilterVal === 'TODOS' || funds.includes(currentFilterVal)) {
+                    filterFondo.value = currentFilterVal;
+                }
+            }
+
+            if (assetFondo) {
+                assetFondo.innerHTML = funds.map(f => `<option value="${escapeHTML(f)}">CARGAR A FONDO: ${escapeHTML(f)}</option>`).join('');
+                if (funds.includes(currentAssetVal)) {
+                    assetFondo.value = currentAssetVal;
+                }
+            }
+        }
+
+        /**
+         * Abre el modal rápido para crear un nuevo fondo o editar el fondo seleccionado
+         */
+        function openFundModal(mode = 'create') {
+            const modal = document.getElementById('fund-modal');
+            const modeInput = document.getElementById('fund-modal-mode');
+            const oldNameInput = document.getElementById('fund-modal-old-name');
+            const textInput = document.getElementById('fund-modal-input');
+            const titleEl = document.getElementById('fund-modal-title');
+            const subEl = document.getElementById('fund-modal-subtitle');
+            const iconEl = document.getElementById('fund-modal-icon');
+            const iconBox = document.getElementById('fund-modal-icon-box');
+            const submitBtn = document.getElementById('fund-modal-submit-btn');
+
+            modeInput.value = mode;
+
+            if (mode === 'edit') {
+                const selectedFund = document.getElementById('input-fondo').value;
+                oldNameInput.value = selectedFund;
+                textInput.value = selectedFund;
+                titleEl.textContent = 'Editar Nombre del Fondo';
+                subEl.textContent = `Se actualizará "${selectedFund}" en todos sus movimientos históricos.`;
+                iconEl.className = 'ph-bold ph-pencil-simple text-xl';
+                iconBox.className = 'w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0';
+                submitBtn.textContent = 'Actualizar Fondo';
+                submitBtn.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors';
+            } else {
+                oldNameInput.value = '';
+                textInput.value = '';
+                titleEl.textContent = 'Crear Nuevo Fondo';
+                subEl.textContent = 'El nombre se guardará automáticamente en MAYÚSCULAS.';
+                iconEl.className = 'ph-bold ph-folder-plus text-xl';
+                iconBox.className = 'w-10 h-10 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center shrink-0';
+                submitBtn.textContent = 'Crear Fondo';
+                submitBtn.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 transition-colors';
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => textInput.focus(), 50);
+        }
+
+        function closeFundModal() {
+            const modal = document.getElementById('fund-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function handleFundModalSubmit(e) {
+            e.preventDefault();
+            const mode = document.getElementById('fund-modal-mode').value;
+            const oldName = document.getElementById('fund-modal-old-name').value.trim().toUpperCase();
+            const newName = document.getElementById('fund-modal-input').value.trim().toUpperCase();
+
+            if (!newName) {
+                showToast('Ingrese un nombre válido para el fondo.', 'error');
+                return;
+            }
+
+            if (mode === 'create') {
+                if (funds.includes(newName)) {
+                    showToast(`El fondo "${newName}" ya existe.`, 'info');
+                    populateFundSelectors(newName);
+                    closeFundModal();
+                    return;
+                }
+                funds.push(newName);
+                saveFunds();
+                populateFundSelectors(newName);
+                refreshAllViews();
+                closeFundModal();
+                showToast(`Fondo "${newName}" creado y seleccionado.`, 'success');
+            } else if (mode === 'edit') {
+                if (newName === oldName) {
+                    closeFundModal();
+                    return;
+                }
+                if (funds.includes(newName)) {
+                    showToast(`Ya existe otro fondo llamado "${newName}".`, 'error');
+                    return;
+                }
+                const idx = funds.indexOf(oldName);
+                if (idx !== -1) {
+                    funds[idx] = newName;
+                }
+                // Actualizar todos los movimientos asociados al fondo renombrado
+                movements.forEach(m => {
+                    if ((m.fondo || 'APORTACIONES').toUpperCase() === oldName) {
+                        m.fondo = newName;
+                    }
+                });
+                saveFunds();
+                saveMovements();
+                populateFundSelectors(newName);
+                refreshAllViews();
+                closeFundModal();
+                showToast(`Fondo actualizado de "${oldName}" a "${newName}".`, 'success');
             }
         }
 
@@ -999,44 +1306,55 @@
             document.getElementById('movement-form').addEventListener('submit', handleFormSubmit);
         }
 
-        // -------------------------------------------------------------------------
-        // NAVEGACIÓN ENTRE PESTAÑAS
-        // -------------------------------------------------------------------------
-
-        function switchTab(tabName) {
-            // Ocultar todos los paneles
-            document.querySelectorAll('.tab-panel').forEach(panel => {
-                panel.classList.add('hidden');
-            });
-
-            // Resetear estilos de botones
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-brand-600', 'text-white', 'shadow-sm', 'font-bold');
-                btn.classList.add('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
-            });
-
-            // Mostrar panel seleccionado
-            const targetPanel = document.getElementById(`panel-${tabName}`);
-            if (targetPanel) {
-                targetPanel.classList.remove('hidden');
+        /**
+         * Configura listeners en los inputs del formulario de Inventario y Bienes
+         */
+        function setupAssetFormInputs() {
+            const descInput = document.getElementById('asset-descripcion');
+            if (descInput) {
+                descInput.addEventListener('input', function () {
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    this.value = this.value.toUpperCase();
+                    this.setSelectionRange(start, end);
+                });
             }
 
-            // Activar botón seleccionado
-            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-            if (activeBtn) {
-                activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
-                activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-sm', 'font-bold');
+            const obsInput = document.getElementById('asset-observacion');
+            if (obsInput) {
+                obsInput.addEventListener('input', function () {
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    this.value = this.value.toUpperCase();
+                    this.setSelectionRange(start, end);
+                });
             }
 
-            if (tabName === 'dashboard') {
-                renderDashboard();
-            } else if (tabName === 'historial') {
-                renderHistory();
-            } else if (tabName === 'resumen') {
-                populateYearSelector();
-                renderSummary();
-            } else if (tabName === 'bienes') {
-                renderAssets();
+            const valorInput = document.getElementById('asset-valor');
+            if (valorInput) {
+                valorInput.addEventListener('input', function () {
+                    let raw = this.value.replace(/[^0-9.]/g, '');
+                    const parts = raw.split('.');
+                    if (parts.length > 2) {
+                        raw = parts[0] + '.' + parts.slice(1).join('');
+                    }
+                    if (parts[1] && parts[1].length > 2) {
+                        raw = parts[0] + '.' + parts[1].substring(0, 2);
+                    }
+                    const [intPart, decPart] = raw.split('.');
+                    const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
+                    this.value = decPart !== undefined ? `${formattedInt}.${decPart}` : formattedInt;
+                });
+
+                valorInput.addEventListener('blur', function () {
+                    const numericVal = parseCurrencyInput(this.value);
+                    this.value = numericVal > 0 ? formatNumberInput(numericVal) : '';
+                });
+            }
+
+            const assetForm = document.getElementById('asset-form');
+            if (assetForm) {
+                assetForm.addEventListener('submit', handleAssetFormSubmit);
             }
         }
 
@@ -1051,6 +1369,7 @@
             const fecha = document.getElementById('input-fecha').value;
             const movimiento = document.getElementById('input-movimiento').value.toUpperCase();
             const cuenta = document.getElementById('input-cuenta').value.toUpperCase();
+            const fondo = (document.getElementById('input-fondo').value || funds[0] || 'APORTACIONES').toUpperCase();
             const valor = parseCurrencyInput(document.getElementById('input-valor').value);
             const observacion = document.getElementById('input-observacion').value.trim().toUpperCase();
 
@@ -1080,6 +1399,7 @@
                         fecha,
                         movimiento,
                         cuenta,
+                        fondo,
                         valor,
                         observacion,
                         updatedAt: Date.now()
@@ -1094,6 +1414,7 @@
                     fecha,
                     movimiento,
                     cuenta,
+                    fondo,
                     valor,
                     observacion,
                     createdAt: Date.now()
@@ -1111,16 +1432,24 @@
         }
 
         /**
-         * Carga un movimiento en la Pestaña 1 para su edición
+         * Carga un movimiento en la Pestaña 2 para su edición
          */
         function editMovement(id) {
             const mov = movements.find(m => m.id === id);
             if (!mov) return;
 
+            const movFondo = (mov.fondo || 'APORTACIONES').toUpperCase();
+            if (!funds.includes(movFondo)) {
+                funds.push(movFondo);
+                saveFunds();
+            }
+            populateFundSelectors(movFondo);
+
             document.getElementById('edit-id').value = mov.id;
             document.getElementById('input-fecha').value = mov.fecha;
             document.getElementById('input-movimiento').value = mov.movimiento;
             document.getElementById('input-cuenta').value = mov.cuenta;
+            document.getElementById('input-fondo').value = movFondo;
             document.getElementById('input-valor').value = formatNumberInput(mov.valor);
             document.getElementById('input-observacion').value = mov.observacion;
 
@@ -1154,6 +1483,9 @@
             setTodayDate();
             document.getElementById('input-movimiento').value = 'INGRESO';
             document.getElementById('input-cuenta').value = 'CAJA CHICA';
+            if (funds.length > 0) {
+                document.getElementById('input-fondo').value = funds[0];
+            }
             document.getElementById('input-valor').value = '';
             document.getElementById('input-observacion').value = '';
 
@@ -1248,6 +1580,9 @@
             document.getElementById('card-saldo-banco').textContent = formatCurrency(saldoBanco);
             document.getElementById('card-saldo-total').textContent = formatCurrency(saldoTotal);
 
+            // 1.5 Actualizar tarjetas de Disponibilidad por Fondo
+            renderDashboardFunds();
+
             // 2. Actualizar resumen del mes actual
             document.getElementById('dash-current-month-label').textContent = `${MONTH_NAMES[currentMonthIdx]} ${currentYear}`;
             document.getElementById('dash-month-ingresos').textContent = formatCurrency(monthIngresos);
@@ -1292,14 +1627,20 @@
 
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-50/90 transition-colors';
+                    const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
                     tr.innerHTML = `
                         <td class="py-3 px-4 whitespace-nowrap font-semibold text-slate-600 text-xs">
                             ${formatDateDisplay(m.fecha)}
                         </td>
                         <td class="py-3 px-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${cuentaBadge}">
-                                ${m.cuenta}
-                            </span>
+                            <div class="flex flex-col gap-1 items-start">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${cuentaBadge}">
+                                    ${m.cuenta}
+                                </span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
+                                    ${escapeHTML(movFondo)}
+                                </span>
+                            </div>
                         </td>
                         <td class="py-3 px-4 font-medium text-slate-700 max-w-[180px] sm:max-w-[240px] truncate" title="${escapeHTML(m.observacion)}">
                             ${escapeHTML(m.observacion)}
@@ -1311,6 +1652,46 @@
                     recentBody.appendChild(tr);
                 });
             }
+        }
+
+        /**
+         * Renderiza las tarjetas de disponibilidad por cada Fondo en el Dashboard
+         */
+        function renderDashboardFunds() {
+            const container = document.getElementById('dash-funds-grid');
+            if (!container) return;
+
+            const balances = {};
+            funds.forEach(f => { balances[f] = 0; });
+
+            movements.forEach(m => {
+                const f = (m.fondo || 'APORTACIONES').toUpperCase();
+                if (balances[f] === undefined) balances[f] = 0;
+                const factor = m.movimiento === 'INGRESO' ? 1 : -1;
+                balances[f] += m.valor * factor;
+            });
+
+            container.innerHTML = '';
+            Object.keys(balances).forEach(fundName => {
+                const val = balances[fundName];
+                const isNegative = val < 0;
+                const card = document.createElement('div');
+                card.className = 'rounded-xl border border-slate-200 bg-slate-50/70 p-4 flex items-center justify-between hover:border-brand-300 transition-colors';
+                card.innerHTML = `
+                    <div class="min-w-0 pr-2">
+                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 block truncate" title="${escapeHTML(fundName)}">
+                            ${escapeHTML(fundName)}
+                        </span>
+                        <span class="text-lg sm:text-xl font-extrabold tracking-tight block mt-1 ${isNegative ? 'text-rose-700' : 'text-slate-900'}">
+                            ${formatCurrency(val)}
+                        </span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-indigo-100/80 text-indigo-700 flex items-center justify-center shrink-0">
+                        <i class="ph-duotone ph-folder-open text-xl"></i>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
 
         /**
@@ -1331,6 +1712,7 @@
 
             const searchFilter = (document.getElementById('filter-search')?.value || '').trim().toUpperCase();
             const cuentaFilter = document.getElementById('filter-cuenta')?.value || 'TODAS';
+            const fondoFilter = document.getElementById('filter-fondo')?.value || 'TODOS';
             const tipoFilter = document.getElementById('filter-tipo')?.value || 'TODOS';
 
             // Ordenar cronológicamente de más reciente a más antigua
@@ -1343,7 +1725,9 @@
 
             // Aplicar filtros activos
             const filtered = sorted.filter(m => {
+                const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
                 if (cuentaFilter !== 'TODAS' && m.cuenta !== cuentaFilter) return false;
+                if (fondoFilter !== 'TODOS' && movFondo !== fondoFilter) return false;
                 if (tipoFilter !== 'TODOS' && m.movimiento !== tipoFilter) return false;
                 if (searchFilter && !m.observacion.includes(searchFilter)) return false;
                 return true;
@@ -1360,6 +1744,7 @@
 
             filtered.forEach(m => {
                 const isIngreso = m.movimiento === 'INGRESO';
+                const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
                 const movBadge = isIngreso
                     ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
                     : 'bg-rose-100 text-rose-800 border-rose-200';
@@ -1384,6 +1769,12 @@
                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border ${cuentaBadge}">
                             <i class="ph-bold ${m.cuenta === 'CAJA CHICA' ? 'ph-coins' : 'ph-bank'}"></i>
                             ${m.cuenta}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 whitespace-nowrap">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
+                            <i class="ph-bold ph-folder"></i>
+                            ${escapeHTML(movFondo)}
                         </span>
                     </td>
                     <td class="py-3.5 px-4 whitespace-nowrap text-right font-extrabold ${amountColor}">
@@ -1574,51 +1965,200 @@
                     <td class="py-3.5 px-4 text-right bg-emerald-100/70 text-emerald-950">${formatCurrency(t.finalSaldoConsolidado)}</td>
                 </tr>
             `;
+
+            // Renderizar tabla complementaria de Resumen Anual por Fondo
+            renderSummaryFunds(year);
         }
 
-        // -------------------------------------------------------------------------
-        // MÓDULO 5: GESTIÓN DE INVENTARIO Y BIENES (ALTAS Y BAJAS)
-        // -------------------------------------------------------------------------
+        /**
+         * Calcula y renderiza el desglose anual por Fondo / Asignación
+         */
+        function calculateYearlyFundsData(year) {
+            const allFundNames = Array.from(new Set([
+                ...funds,
+                ...movements.map(m => (m.fondo || 'APORTACIONES').toUpperCase())
+            ]));
 
-        function setupAssetFormInputs() {
-            // Forzar mayúsculas en descripción y observación
-            ['asset-descripcion', 'asset-observacion'].forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                el.addEventListener('input', function () {
-                    const start = this.selectionStart;
-                    const end = this.selectionEnd;
-                    this.value = this.value.toUpperCase();
-                    this.setSelectionRange(start, end);
+            return allFundNames.map(fundName => {
+                let inicial = 0;
+                let ingresosAnio = 0;
+                let egresosAnio = 0;
+
+                movements.forEach(m => {
+                    const mFund = (m.fondo || 'APORTACIONES').toUpperCase();
+                    if (mFund !== fundName) return;
+                    const movYear = parseInt(m.fecha.split('-')[0], 10);
+                    const factor = m.movimiento === 'INGRESO' ? 1 : -1;
+
+                    if (movYear < year) {
+                        inicial += m.valor * factor;
+                    } else if (movYear === year) {
+                        if (m.movimiento === 'INGRESO') ingresosAnio += m.valor;
+                        else egresosAnio += m.valor;
+                    }
                 });
+
+                return {
+                    fundName,
+                    inicial,
+                    ingresosAnio,
+                    egresosAnio,
+                    saldoFinal: inicial + ingresosAnio - egresosAnio
+                };
             });
+        }
 
-            // Formateo inteligente de moneda en Valor del Bien
-            const assetValorInput = document.getElementById('asset-valor');
-            if (assetValorInput) {
-                assetValorInput.addEventListener('input', function () {
-                    let raw = this.value.replace(/[^0-9.]/g, '');
-                    const parts = raw.split('.');
-                    if (parts.length > 2) {
-                        raw = parts[0] + '.' + parts.slice(1).join('');
+        function renderSummaryFunds(year) {
+            const yearLabel = document.getElementById('summary-fund-year-label');
+            const tbody = document.getElementById('summary-funds-body');
+            if (!tbody) return;
+            if (yearLabel) yearLabel.textContent = year;
+
+            const fundRows = calculateYearlyFundsData(year);
+            tbody.innerHTML = '';
+
+            fundRows.forEach(fr => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-extrabold text-indigo-900">${escapeHTML(fr.fundName)}</td>
+                    <td class="py-3 px-4 text-right font-medium text-slate-600">${formatCurrency(fr.inicial)}</td>
+                    <td class="py-3 px-4 text-right font-semibold text-emerald-700">${formatCurrency(fr.ingresosAnio)}</td>
+                    <td class="py-3 px-4 text-right font-semibold text-rose-700">${formatCurrency(fr.egresosAnio)}</td>
+                    <td class="py-3 px-4 text-right font-extrabold bg-indigo-50/50 ${fr.saldoFinal < 0 ? 'text-rose-700' : 'text-indigo-950'}">${formatCurrency(fr.saldoFinal)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        /**
+         * Exporta el Resumen Mensual (Caja, Bancos y Fondos) a PDF
+         */
+        async function exportSummaryToPDF() {
+            try {
+                const year = parseInt(document.getElementById('summary-year').value, 10) || new Date().getFullYear();
+                const data = calculateYearlySummaryData(year);
+                const fundData = calculateYearlyFundsData(year);
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter' });
+
+                const now = new Date();
+                const fechaGen = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+
+                doc.setFillColor(12, 74, 110);
+                doc.rect(0, 0, 280, 26, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(18);
+                doc.text('FINANZAS FDPO', 14, 12);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.text(`RESUMEN ANUAL DE CAJA CHICA, BANCOS Y FONDOS — AÑO ${year}`, 14, 19);
+                doc.setFontSize(9);
+                doc.text(`Fecha de Emisión: ${fechaGen}`, 265, 12, { align: 'right' });
+                doc.text('Moneda: Lempiras (L.)', 265, 19, { align: 'right' });
+
+                const body = data.rows.map(r => [
+                    r.monthName,
+                    formatCurrency(r.ingCaja),
+                    formatCurrency(r.egrCaja),
+                    formatCurrency(r.saldoCaja),
+                    formatCurrency(r.ingBanco),
+                    formatCurrency(r.egrBanco),
+                    formatCurrency(r.saldoBanco),
+                    formatCurrency(r.saldoConsolidado)
+                ]);
+
+                const t = data.totals;
+                body.push([
+                    `CIERRE ${year}`,
+                    formatCurrency(t.totalIngCaja),
+                    formatCurrency(t.totalEgrCaja),
+                    formatCurrency(t.finalSaldoCaja),
+                    formatCurrency(t.totalIngBanco),
+                    formatCurrency(t.totalEgrBanco),
+                    formatCurrency(t.finalSaldoBanco),
+                    formatCurrency(t.finalSaldoConsolidado)
+                ]);
+
+                doc.autoTable({
+                    startY: 31,
+                    head: [[
+                        'MES',
+                        'ING. CAJA', 'EGR. CAJA', 'SALDO CAJA',
+                        'ING. BANCO', 'EGR. BANCO', 'SALDO BANCO',
+                        'SALDO CONSOLIDADO'
+                    ]],
+                    body: body,
+                    theme: 'grid',
+                    styles: { font: 'helvetica', fontSize: 7.5, cellPadding: 2 },
+                    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+                    columnStyles: {
+                        0: { fontStyle: 'bold' },
+                        1: { halign: 'right' },
+                        2: { halign: 'right' },
+                        3: { halign: 'right', fontStyle: 'bold' },
+                        4: { halign: 'right' },
+                        5: { halign: 'right' },
+                        6: { halign: 'right', fontStyle: 'bold' },
+                        7: { halign: 'right', fontStyle: 'bold' }
                     }
-                    if (parts[1] && parts[1].length > 2) {
-                        raw = parts[0] + '.' + parts[1].substring(0, 2);
-                    }
-                    const [intPart, decPart] = raw.split('.');
-                    const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
-                    this.value = decPart !== undefined ? `${formattedInt}.${decPart}` : formattedInt;
                 });
 
-                assetValorInput.addEventListener('blur', function () {
-                    const numericVal = parseCurrencyInput(this.value);
-                    this.value = numericVal > 0 ? formatNumberInput(numericVal) : '';
-                });
-            }
+                // Tabla de Saldos por Fondo en el mismo PDF
+                const nextY = doc.lastAutoTable.finalY + 8;
+                doc.setTextColor(30, 41, 59);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.text(`DESGLOSE DE SALDOS POR FONDO / ASIGNACIÓN (${year})`, 14, nextY);
 
-            const assetForm = document.getElementById('asset-form');
-            if (assetForm) {
-                assetForm.addEventListener('submit', handleAssetFormSubmit);
+                doc.autoTable({
+                    startY: nextY + 3,
+                    head: [['FONDO / ASIGNACIÓN', 'SALDO INICIAL', 'INGRESOS AÑO', 'EGRESOS AÑO', 'SALDO DISPONIBLE']],
+                    body: fundData.map(f => [
+                        f.fundName,
+                        formatCurrency(f.inicial),
+                        formatCurrency(f.ingresosAnio),
+                        formatCurrency(f.egresosAnio),
+                        formatCurrency(f.saldoFinal)
+                    ]),
+                    theme: 'grid',
+                    styles: { font: 'helvetica', fontSize: 8, cellPadding: 2.2 },
+                    headStyles: { fillColor: [49, 46, 129], textColor: [255, 255, 255], fontStyle: 'bold' },
+                    columnStyles: {
+                        0: { fontStyle: 'bold' },
+                        1: { halign: 'right' },
+                        2: { halign: 'right' },
+                        3: { halign: 'right' },
+                        4: { halign: 'right', fontStyle: 'bold' }
+                    }
+                });
+
+                const fileName = `Finanzas_FDPO_Resumen_${year}.pdf`;
+                const pdfBlob = doc.output('blob');
+
+                if (window.showSaveFilePicker) {
+                    try {
+                        const fileHandle = await window.showSaveFilePicker({
+                            suggestedName: fileName,
+                            types: [{ description: 'Documento PDF', accept: { 'application/pdf': ['.pdf'] } }]
+                        });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(pdfBlob);
+                        await writable.close();
+                        showToast('Resumen PDF guardado en la carpeta seleccionada.', 'success');
+                        return;
+                    } catch (pickerErr) {
+                        if (pickerErr.name === 'AbortError') return;
+                    }
+                }
+
+                doc.save(fileName);
+                showToast('Resumen PDF descargado correctamente.', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Error al generar el PDF.', 'error');
             }
         }
 
@@ -1699,6 +2239,7 @@
                 const syncFinance = document.getElementById('asset-sync-finance').checked;
                 if (syncFinance) {
                     const cuentaSeleccionada = document.getElementById('asset-finance-cuenta').value.toUpperCase();
+                    const fondoSeleccionado = (document.getElementById('asset-finance-fondo')?.value || funds[0] || 'APORTACIONES').toUpperCase();
                     const tipoFinanza = operacion === 'ALTA' ? 'EGRESO' : 'INGRESO';
                     const prefijoObs = operacion === 'ALTA' ? 'COMPRA / ALTA DE BIEN:' : 'VENTA / RECUPERACIÓN DE BIEN:';
                     movements.push({
@@ -1706,12 +2247,13 @@
                         fecha,
                         movimiento: tipoFinanza,
                         cuenta: cuentaSeleccionada,
+                        fondo: fondoSeleccionado,
                         valor,
                         observacion: `${prefijoObs} ${descripcion} (${cantidad} UNID.)`,
                         createdAt: Date.now()
                     });
                     saveMovements();
-                    showToast(`Bien guardado y ${tipoFinanza} registrado en ${cuentaSeleccionada}.`, 'success');
+                    showToast(`Bien guardado y ${tipoFinanza} registrado en ${cuentaSeleccionada} (${fondoSeleccionado}).`, 'success');
                 } else {
                     showToast('Bien registrado en el inventario correctamente.', 'success');
                 }
@@ -1999,9 +2541,10 @@
 
         function exportBackupJSON() {
             const payload = {
-                version: 2,
+                version: 3,
                 app: 'Finanzas FDPO',
                 exportedAt: new Date().toISOString(),
+                funds: funds,
                 movements: movements,
                 assets: assets
             };
@@ -2033,27 +2576,40 @@
                         throw new Error('Formato inválido');
                     }
 
+                    if (Array.isArray(imported.funds) && imported.funds.length > 0) {
+                        funds = Array.from(new Set(imported.funds.map(f => String(f).trim().toUpperCase()).filter(Boolean)));
+                        saveFunds();
+                    }
+
                     movements = movList.map(item => ({
                         id: item.id || ('MOV-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6)),
                         fecha: item.fecha || new Date().toISOString().split('T')[0],
                         movimiento: (item.movimiento || 'INGRESO').toUpperCase(),
                         cuenta: (item.cuenta || 'CAJA CHICA').toUpperCase(),
+                        fondo: (item.fondo || 'APORTACIONES').toUpperCase(),
                         valor: Number(item.valor) || 0,
                         observacion: (item.observacion || '').toUpperCase(),
                         createdAt: item.createdAt || Date.now()
                     }));
 
+                    // Asegurar que todos los fondos de los movimientos importados existan en el catálogo
+                    movements.forEach(m => {
+                        if (!funds.includes(m.fondo)) funds.push(m.fondo);
+                    });
+                    saveFunds();
+                    populateFundSelectors();
+
                     if (Array.isArray(imported.assets)) {
-                        assets = imported.assets.map(item => ({
-                            id: item.id || ('BIEN-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6)),
-                            fecha: item.fecha || new Date().toISOString().split('T')[0],
-                            operacion: (item.operacion || 'ALTA').toUpperCase(),
-                            categoria: (item.categoria || 'EQUIPO DE OFICINA').toUpperCase(),
-                            cantidad: Number(item.cantidad) || 1,
-                            descripcion: (item.descripcion || '').toUpperCase(),
-                            valor: Number(item.valor) || 0,
-                            observacion: (item.observacion || '').toUpperCase(),
-                            createdAt: item.createdAt || Date.now()
+                        assets = imported.assets.map(a => ({
+                            id: a.id || ('BIEN-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6)),
+                            fecha: a.fecha || new Date().toISOString().split('T')[0],
+                            operacion: (a.operacion || 'ALTA').toUpperCase(),
+                            categoria: (a.categoria || 'EQUIPO DE OFICINA').toUpperCase(),
+                            cantidad: Number(a.cantidad) || 1,
+                            descripcion: (a.descripcion || '').toUpperCase(),
+                            valor: Number(a.valor) || 0,
+                            observacion: (a.observacion || '').toUpperCase(),
+                            createdAt: a.createdAt || Date.now()
                         }));
                         saveAssets();
                     }
