@@ -3,23 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanzas FDPO | Control de Caja Chica y Bancos</title>
-    
-    <!-- Tailwind CSS para diseño moderno y responsivo -->
+    <title>Finanzas FDPO - Control de Caja y Bancos</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Iconos Phosphor -->
+    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <!-- jsPDF y jsPDF-AutoTable para generación de reportes PDF -->
+    <!-- jsPDF & AutoTable para exportación a PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-
     <script>
         tailwind.config = {
             theme: {
@@ -29,8 +24,11 @@
                     },
                     colors: {
                         brand: {
-                            50: '#f0f7ff',
-                            100: '#e0effe',
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
                             500: '#0ea5e9',
                             600: '#0284c7',
                             700: '#0369a1',
@@ -42,59 +40,19 @@
             }
         }
     </script>
-
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-        }
-        /* Forzar visualización en mayúsculas en campos de texto libre */
         .force-uppercase {
             text-transform: uppercase;
         }
-        /* Transiciones suaves de pestañas */
-        .tab-panel {
-            animation: fadeIn 0.2s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
 
-    <!-- Notificación Toast Flotante -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-    <!-- Modal de Confirmación Personalizado (Sin alert/confirm nativos) -->
-    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-100 transform transition-all">
-            <div class="flex items-center gap-3 text-red-600 mb-3">
-                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-                    <i class="ph-bold ph-warning text-xl"></i>
-                </div>
-                <h3 id="confirm-title" class="text-lg font-bold text-slate-900">Confirmar Acción</h3>
-            </div>
-            <p id="confirm-message" class="text-slate-600 text-sm mb-6 leading-relaxed">
-                ¿Está seguro de realizar esta acción?
-            </p>
-            <div class="flex justify-end gap-3">
-                <button id="confirm-cancel-btn" type="button" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
-                    Cancelar
-                </button>
-                <button id="confirm-ok-btn" type="button" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 shadow-sm transition-colors">
-                    Sí, Eliminar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Cabecera Principal -->
+    <!-- Cabecera Principal Compacta -->
     <header class="bg-gradient-to-r from-slate-900 via-brand-900 to-slate-900 text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
                     <div class="w-11 h-11 rounded-xl bg-brand-500/20 border border-brand-400/30 flex items-center justify-center text-brand-300 shadow-inner">
                         <i class="ph-duotone ph-wallet text-2xl"></i>
                     </div>
@@ -117,61 +75,29 @@
                     </label>
                 </div>
             </div>
-
-            <!-- Tarjetas de Saldos Actuales en Tiempo Real -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <!-- Saldo Caja Chica -->
-                <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-4 flex items-center justify-between">
-                    <div>
-                        <span class="text-xs font-semibold uppercase tracking-wider text-brand-200 block mb-1">Saldo Actual Caja Chica</span>
-                        <span id="card-saldo-caja" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">L. 0.00</span>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300">
-                        <i class="ph-duotone ph-coins text-2xl"></i>
-                    </div>
-                </div>
-
-                <!-- Saldo Bancos -->
-                <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-4 flex items-center justify-between">
-                    <div>
-                        <span class="text-xs font-semibold uppercase tracking-wider text-brand-200 block mb-1">Saldo Actual Bancos</span>
-                        <span id="card-saldo-banco" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">L. 0.00</span>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-300">
-                        <i class="ph-duotone ph-bank text-2xl"></i>
-                    </div>
-                </div>
-
-                <!-- Saldo Total General -->
-                <div class="bg-gradient-to-br from-emerald-500/25 to-teal-600/25 backdrop-blur-md border border-emerald-400/30 rounded-2xl p-4 flex items-center justify-between">
-                    <div>
-                        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-200 block mb-1">Saldo Total Consolidado</span>
-                        <span id="card-saldo-total" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">L. 0.00</span>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-emerald-500/30 border border-emerald-400/40 flex items-center justify-center text-emerald-200">
-                        <i class="ph-duotone ph-scales text-2xl"></i>
-                    </div>
-                </div>
-            </div>
         </div>
     </header>
 
-    <!-- Navegación por 3 Pestañas -->
+    <!-- Navegación por 4 Pestañas -->
     <div class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav class="flex space-x-2 sm:space-x-6 overflow-x-auto py-2" aria-label="Pestañas principales">
-                <button id="tab-btn-nuevo" onclick="switchTab('nuevo')" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap bg-brand-600 text-white shadow-sm">
+            <nav class="flex space-x-2 sm:space-x-4 overflow-x-auto py-2.5" aria-label="Pestañas principales">
+                <button id="tab-btn-dashboard" onclick="switchTab('dashboard')" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap bg-brand-600 text-white shadow-sm">
+                    <i class="ph-bold ph-squares-four text-lg"></i>
+                    <span>1. Dashboard</span>
+                </button>
+                <button id="tab-btn-nuevo" onclick="switchTab('nuevo')" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all whitespace-nowrap">
                     <i class="ph-bold ph-plus-circle text-lg"></i>
-                    <span>1. Nuevo Movimiento</span>
+                    <span>2. Nuevo Movimiento</span>
                 </button>
                 <button id="tab-btn-historial" onclick="switchTab('historial')" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all whitespace-nowrap">
                     <i class="ph-bold ph-list-dashes text-lg"></i>
-                    <span>2. Historial de Movimientos</span>
+                    <span>3. Historial de Movimientos</span>
                     <span id="badge-count" class="ml-1 px-2 py-0.5 text-xs rounded-full bg-slate-200 text-slate-700 font-bold">0</span>
                 </button>
                 <button id="tab-btn-resumen" onclick="switchTab('resumen')" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all whitespace-nowrap">
                     <i class="ph-bold ph-chart-bar text-lg"></i>
-                    <span>3. Resúmenes Mensuales</span>
+                    <span>4. Resúmenes Mensuales</span>
                 </button>
             </nav>
         </div>
@@ -181,9 +107,176 @@
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         <!-- ===================================================================== -->
-        <!-- PESTAÑA 1: NUEVO MOVIMIENTO                                           -->
+        <!-- PESTAÑA 1: DASHBOARD (PANEL PRINCIPAL DE ENTRADA)                     -->
         <!-- ===================================================================== -->
-        <section id="panel-nuevo" class="tab-panel">
+        <section id="panel-dashboard" class="tab-panel space-y-6">
+            
+            <!-- Bloque Principal de Saldos en Tiempo Real -->
+            <div class="bg-gradient-to-r from-slate-900 via-brand-900 to-slate-900 rounded-2xl p-6 sm:p-7 shadow-lg text-white">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <div>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-brand-500/20 text-brand-200 border border-brand-400/30 mb-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Estado Financiero Actualizado
+                        </span>
+                        <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">Resumen Ejecutivo de Saldos</h2>
+                    </div>
+                    <button onclick="switchTab('nuevo')" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white bg-brand-600 hover:bg-brand-500 shadow-md shadow-brand-950/40 border border-brand-400/30 transition-all self-start sm:self-auto">
+                        <i class="ph-bold ph-plus-circle text-lg"></i>
+                        <span>Registrar Nuevo Movimiento</span>
+                    </button>
+                </div>
+
+                <!-- Tarjetas de Saldos Actuales -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Saldo Caja Chica -->
+                    <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-5 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-brand-200 block mb-1.5">Saldo Actual Caja Chica</span>
+                            <span id="card-saldo-caja" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">L. 0.00</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 shrink-0">
+                            <i class="ph-duotone ph-coins text-2xl"></i>
+                        </div>
+                    </div>
+
+                    <!-- Saldo Bancos -->
+                    <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-5 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-brand-200 block mb-1.5">Saldo Actual Bancos</span>
+                            <span id="card-saldo-banco" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">L. 0.00</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-300 shrink-0">
+                            <i class="ph-duotone ph-bank text-2xl"></i>
+                        </div>
+                    </div>
+
+                    <!-- Saldo Total General -->
+                    <div class="bg-gradient-to-br from-emerald-500/25 to-teal-600/25 backdrop-blur-md border border-emerald-400/30 rounded-2xl p-5 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-emerald-200 block mb-1.5">Saldo Total Consolidado</span>
+                            <span id="card-saldo-total" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">L. 0.00</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/30 border border-emerald-400/40 flex items-center justify-center text-emerald-200 shrink-0">
+                            <i class="ph-duotone ph-scales text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Inferior del Dashboard: Resumen del Mes Actual + Últimos 5 Movimientos -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Columna Izquierda (5 cols): Resumen Visual del Mes Actual -->
+                <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900">Flujo del Mes Actual</h3>
+                                <p id="dash-current-month-label" class="text-xs font-semibold uppercase tracking-wider text-brand-600 mt-0.5">MES ACTUAL</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+                                <i class="ph-duotone ph-calendar-check text-xl"></i>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 mt-5">
+                            <!-- Ingresos del Mes -->
+                            <div class="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-100">
+                                <div class="flex items-center justify-between text-xs font-bold text-emerald-800 mb-1.5">
+                                    <span class="flex items-center gap-1.5">
+                                        <i class="ph-bold ph-arrow-down-left text-emerald-600"></i>
+                                        INGRESOS DEL MES
+                                    </span>
+                                    <span id="dash-month-ingresos" class="text-sm font-extrabold">L. 0.00</span>
+                                </div>
+                                <div class="w-full bg-emerald-200/60 rounded-full h-2 overflow-hidden">
+                                    <div id="dash-bar-ingresos" class="bg-emerald-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Egresos del Mes -->
+                            <div class="p-3.5 rounded-xl bg-rose-50/70 border border-rose-100">
+                                <div class="flex items-center justify-between text-xs font-bold text-rose-800 mb-1.5">
+                                    <span class="flex items-center gap-1.5">
+                                        <i class="ph-bold ph-arrow-up-right text-rose-600"></i>
+                                        EGRESOS DEL MES
+                                    </span>
+                                    <span id="dash-month-egresos" class="text-sm font-extrabold">L. 0.00</span>
+                                </div>
+                                <div class="w-full bg-rose-200/60 rounded-full h-2 overflow-hidden">
+                                    <div id="dash-bar-egresos" class="bg-rose-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Balance Neto del Mes -->
+                            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Balance Neto del Mes:</span>
+                                <span id="dash-month-balance" class="text-lg font-extrabold text-slate-900">L. 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <button onclick="switchTab('resumen')" class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200/60 transition-colors flex items-center justify-center gap-1.5">
+                            <span>Ver Reporte Anual Enero – Diciembre</span>
+                            <i class="ph-bold ph-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha (7 cols): Últimos 5 Movimientos -->
+                <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="px-6 py-4 bg-slate-50/70 border-b border-slate-200 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900">Últimos Movimientos Registrados</h3>
+                                <p class="text-xs text-slate-500">Vista rápida de las 5 operaciones más recientes.</p>
+                            </div>
+                            <button onclick="switchTab('historial')" class="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-800 transition-colors">
+                                <span>Ver todo el historial</span>
+                                <i class="ph-bold ph-arrow-right"></i>
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100/70 border-b border-slate-200 text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
+                                        <th class="py-2.5 px-4">Fecha</th>
+                                        <th class="py-2.5 px-4">Cuenta</th>
+                                        <th class="py-2.5 px-4">Observación</th>
+                                        <th class="py-2.5 px-4 text-right">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dash-recent-body" class="divide-y divide-slate-100 text-xs sm:text-sm">
+                                    <!-- Últimos 5 movimientos generados dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Estado vacío en Dashboard -->
+                        <div id="dash-recent-empty" class="hidden py-10 px-4 text-center">
+                            <p class="text-sm font-semibold text-slate-600">Aún no hay movimientos registrados.</p>
+                            <p class="text-xs text-slate-400 mt-1">Haz clic en "Registrar Nuevo Movimiento" para comenzar.</p>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-3.5 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-xs text-slate-500">Total operaciones históricas: <strong id="dash-total-ops" class="text-slate-800">0</strong></span>
+                        <button onclick="switchTab('historial')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 shadow-2xs transition-colors">
+                            <i class="ph-bold ph-list-dashes"></i>
+                            <span>Ver todo el historial</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- PESTAÑA 2: NUEVO MOVIMIENTO                                           -->
+        <!-- ===================================================================== -->
+        <section id="panel-nuevo" class="tab-panel hidden">
             <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <!-- Encabezado de Formulario -->
                 <div id="form-header" class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
@@ -280,7 +373,7 @@
         </section>
 
         <!-- ===================================================================== -->
-        <!-- PESTAÑA 2: HISTORIAL DE MOVIMIENTOS                                   -->
+        <!-- PESTAÑA 3: HISTORIAL DE MOVIMIENTOS                                   -->
         <!-- ===================================================================== -->
         <section id="panel-historial" class="tab-panel hidden">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
@@ -421,6 +514,32 @@
             <span>Almacenamiento Local Seguro • Moneda: Lempiras (L.)</span>
         </div>
     </footer>
+
+    <!-- Contenedor de Notificaciones Toast -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
+
+    <!-- Modal de Confirmación Personalizado -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                    <i class="ph-bold ph-warning text-xl"></i>
+                </div>
+                <div>
+                    <h3 id="confirm-title" class="text-base font-bold text-slate-900">Confirmar Acción</h3>
+                    <p id="confirm-message" class="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed"></p>
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-2.5 pt-2">
+                <button id="confirm-cancel-btn" type="button" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+                    Cancelar
+                </button>
+                <button id="confirm-ok-btn" type="button" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 transition-colors">
+                    Sí, Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ========================================================================= -->
     <!-- LÓGICA DE APLICACIÓN JAVASCRIPT                                           -->
@@ -601,14 +720,21 @@
             });
 
             // Mostrar panel seleccionado
-            document.getElementById(`panel-${tabName}`).classList.remove('hidden');
+            const targetPanel = document.getElementById(`panel-${tabName}`);
+            if (targetPanel) {
+                targetPanel.classList.remove('hidden');
+            }
 
             // Activar botón seleccionado
             const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-            activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
-            activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-sm', 'font-bold');
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
+                activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-sm', 'font-bold');
+            }
 
-            if (tabName === 'historial') {
+            if (tabName === 'dashboard') {
+                renderDashboard();
+            } else if (tabName === 'historial') {
                 renderHistory();
             } else if (tabName === 'resumen') {
                 populateYearSelector();
@@ -770,7 +896,7 @@
         // -------------------------------------------------------------------------
 
         function refreshAllViews() {
-            updateTopBalanceCards();
+            renderDashboard();
             document.getElementById('badge-count').textContent = movements.length;
             renderHistory();
             populateYearSelector();
@@ -778,11 +904,18 @@
         }
 
         /**
-         * Calcula y actualiza las 3 tarjetas superiores de saldo actual
+         * Calcula y actualiza todo el contenido de la Pestaña 1: Dashboard
          */
-        function updateTopBalanceCards() {
+        function renderDashboard() {
             let saldoCaja = 0;
             let saldoBanco = 0;
+
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonthIdx = now.getMonth();
+
+            let monthIngresos = 0;
+            let monthEgresos = 0;
 
             movements.forEach(m => {
                 const factor = m.movimiento === 'INGRESO' ? 1 : -1;
@@ -791,36 +924,115 @@
                 } else if (m.cuenta === 'BANCO') {
                     saldoBanco += m.valor * factor;
                 }
+
+                // Verificar si pertenece al mes y año actual
+                if (m.fecha) {
+                    const [yStr, mStr] = m.fecha.split('-');
+                    const movYear = parseInt(yStr, 10);
+                    const movMonth = parseInt(mStr, 10) - 1;
+                    if (movYear === currentYear && movMonth === currentMonthIdx) {
+                        if (m.movimiento === 'INGRESO') {
+                            monthIngresos += m.valor;
+                        } else {
+                            monthEgresos += m.valor;
+                        }
+                    }
+                }
             });
 
             const saldoTotal = saldoCaja + saldoBanco;
 
+            // 1. Actualizar tarjetas principales
             document.getElementById('card-saldo-caja').textContent = formatCurrency(saldoCaja);
             document.getElementById('card-saldo-banco').textContent = formatCurrency(saldoBanco);
             document.getElementById('card-saldo-total').textContent = formatCurrency(saldoTotal);
+
+            // 2. Actualizar resumen del mes actual
+            document.getElementById('dash-current-month-label').textContent = `${MONTH_NAMES[currentMonthIdx]} ${currentYear}`;
+            document.getElementById('dash-month-ingresos').textContent = formatCurrency(monthIngresos);
+            document.getElementById('dash-month-egresos').textContent = formatCurrency(monthEgresos);
+
+            const monthBalance = monthIngresos - monthEgresos;
+            const balanceEl = document.getElementById('dash-month-balance');
+            balanceEl.textContent = formatCurrency(monthBalance);
+            balanceEl.className = `text-lg font-extrabold ${monthBalance < 0 ? 'text-rose-600' : monthBalance > 0 ? 'text-emerald-700' : 'text-slate-900'}`;
+
+            // Barras proporcionales visuales
+            const maxFlow = Math.max(monthIngresos, monthEgresos, 1);
+            const ingPct = monthIngresos > 0 ? Math.max(6, Math.round((monthIngresos / maxFlow) * 100)) : 0;
+            const egrPct = monthEgresos > 0 ? Math.max(6, Math.round((monthEgresos / maxFlow) * 100)) : 0;
+            document.getElementById('dash-bar-ingresos').style.width = `${ingPct}%`;
+            document.getElementById('dash-bar-egresos').style.width = `${egrPct}%`;
+
+            // 3. Actualizar tabla rápida de los últimos 5 movimientos
+            document.getElementById('dash-total-ops').textContent = movements.length;
+            const recentBody = document.getElementById('dash-recent-body');
+            const recentEmpty = document.getElementById('dash-recent-empty');
+
+            const sortedRecent = [...movements].sort((a, b) => {
+                if (a.fecha !== b.fecha) {
+                    return b.fecha.localeCompare(a.fecha);
+                }
+                return (b.createdAt || 0) - (a.createdAt || 0);
+            }).slice(0, 5);
+
+            recentBody.innerHTML = '';
+
+            if (sortedRecent.length === 0) {
+                recentEmpty.classList.remove('hidden');
+            } else {
+                recentEmpty.classList.add('hidden');
+                sortedRecent.forEach(m => {
+                    const isIngreso = m.movimiento === 'INGRESO';
+                    const amountColor = isIngreso ? 'text-emerald-700' : 'text-rose-700';
+                    const cuentaBadge = m.cuenta === 'CAJA CHICA'
+                        ? 'bg-amber-50 text-amber-800 border-amber-200'
+                        : 'bg-sky-50 text-sky-800 border-sky-200';
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50/90 transition-colors';
+                    tr.innerHTML = `
+                        <td class="py-3 px-4 whitespace-nowrap font-semibold text-slate-600 text-xs">
+                            ${formatDateDisplay(m.fecha)}
+                        </td>
+                        <td class="py-3 px-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${cuentaBadge}">
+                                ${m.cuenta}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 font-medium text-slate-700 max-w-[180px] sm:max-w-[240px] truncate" title="${escapeHTML(m.observacion)}">
+                            ${escapeHTML(m.observacion)}
+                        </td>
+                        <td class="py-3 px-4 whitespace-nowrap text-right font-extrabold text-xs sm:text-sm ${amountColor}">
+                            ${isIngreso ? '+' : '-'} ${formatCurrency(m.valor)}
+                        </td>
+                    `;
+                    recentBody.appendChild(tr);
+                });
+            }
         }
 
         /**
-         * Formatea fecha YYYY-MM-DD a DD/MM/YYYY para visualización
+         * Formatea una fecha YYYY-MM-DD a DD/MM/YYYY para lectura clara
          */
         function formatDateDisplay(isoDate) {
-            if (!isoDate) return '';
+            if (!isoDate || !isoDate.includes('-')) return isoDate || '';
             const [y, m, d] = isoDate.split('-');
             return `${d}/${m}/${y}`;
         }
 
         /**
-         * Renderiza la tabla de historial (Pestaña 2) ordenada de más reciente a más antigua
+         * Renderiza el historial completo ordenado de más reciente a más antiguo (Pestaña 3)
          */
         function renderHistory() {
             const tbody = document.getElementById('history-table-body');
             const emptyState = document.getElementById('history-empty-state');
 
-            const searchFilter = document.getElementById('filter-search').value.trim().toUpperCase();
-            const cuentaFilter = document.getElementById('filter-cuenta').value;
-            const tipoFilter = document.getElementById('filter-tipo').value;
+            const searchFilter = (document.getElementById('filter-search')?.value || '').trim().toUpperCase();
+            const cuentaFilter = document.getElementById('filter-cuenta')?.value || 'TODAS';
+            const tipoFilter = document.getElementById('filter-tipo')?.value || 'TODOS';
 
-            // Ordenar estrictamente de fecha más reciente a más antigua (y por creación descendente en misma fecha)
+            // Ordenar cronológicamente de más reciente a más antigua
             const sorted = [...movements].sort((a, b) => {
                 if (a.fecha !== b.fecha) {
                     return b.fecha.localeCompare(a.fecha);
@@ -828,7 +1040,7 @@
                 return (b.createdAt || 0) - (a.createdAt || 0);
             });
 
-            // Aplicar filtros
+            // Aplicar filtros activos
             const filtered = sorted.filter(m => {
                 if (cuentaFilter !== 'TODAS' && m.cuenta !== cuentaFilter) return false;
                 if (tipoFilter !== 'TODOS' && m.movimiento !== tipoFilter) return false;
@@ -841,21 +1053,19 @@
             if (filtered.length === 0) {
                 emptyState.classList.remove('hidden');
                 return;
-            } else {
-                emptyState.classList.add('hidden');
             }
+
+            emptyState.classList.add('hidden');
 
             filtered.forEach(m => {
                 const isIngreso = m.movimiento === 'INGRESO';
-                const badgeClass = isIngreso
+                const movBadge = isIngreso
                     ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
                     : 'bg-rose-100 text-rose-800 border-rose-200';
-                const iconClass = isIngreso ? 'ph-arrow-down-left' : 'ph-arrow-up-right';
-                const amountColor = isIngreso ? 'text-emerald-700' : 'text-rose-700';
-
                 const cuentaBadge = m.cuenta === 'CAJA CHICA'
-                    ? 'bg-amber-50 text-amber-800 border-amber-200'
-                    : 'bg-sky-50 text-sky-800 border-sky-200';
+                    ? 'bg-amber-100 text-amber-800 border-amber-200'
+                    : 'bg-sky-100 text-sky-800 border-sky-200';
+                const amountColor = isIngreso ? 'text-emerald-700' : 'text-rose-700';
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50/90 transition-colors';
@@ -864,31 +1074,30 @@
                         ${formatDateDisplay(m.fecha)}
                     </td>
                     <td class="py-3.5 px-4 whitespace-nowrap">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border ${badgeClass}">
-                            <i class="ph-bold ${iconClass}"></i>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border ${movBadge}">
+                            <i class="ph-bold ${isIngreso ? 'ph-arrow-down-left' : 'ph-arrow-up-right'}"></i>
                             ${m.movimiento}
                         </span>
                     </td>
                     <td class="py-3.5 px-4 whitespace-nowrap">
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold border ${cuentaBadge}">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border ${cuentaBadge}">
+                            <i class="ph-bold ${m.cuenta === 'CAJA CHICA' ? 'ph-coins' : 'ph-bank'}"></i>
                             ${m.cuenta}
                         </span>
                     </td>
                     <td class="py-3.5 px-4 whitespace-nowrap text-right font-extrabold ${amountColor}">
                         ${isIngreso ? '+' : '-'} ${formatCurrency(m.valor)}
                     </td>
-                    <td class="py-3.5 px-4 font-medium text-slate-700 max-w-xs sm:max-w-md break-words">
+                    <td class="py-3.5 px-4 font-medium text-slate-800 max-w-xs break-words">
                         ${escapeHTML(m.observacion)}
                     </td>
                     <td class="py-3.5 px-4 whitespace-nowrap text-center">
-                        <div class="inline-flex items-center gap-1.5">
-                            <button onclick="editMovement('${m.id}')" title="Editar movimiento"
-                                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors">
+                        <div class="inline-flex items-center justify-center gap-1.5">
+                            <button onclick="editMovement('${m.id}')" title="Editar movimiento" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 transition-colors">
                                 <i class="ph-bold ph-pencil-simple"></i>
                                 <span>Editar</span>
                             </button>
-                            <button onclick="deleteMovement('${m.id}')" title="Eliminar movimiento"
-                                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors">
+                            <button onclick="deleteMovement('${m.id}')" title="Eliminar movimiento" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition-colors">
                                 <i class="ph-bold ph-trash"></i>
                                 <span>Eliminar</span>
                             </button>
@@ -899,16 +1108,15 @@
             });
         }
 
-        // -------------------------------------------------------------------------
-        // RESÚMENES MENSUALES (ENERO A DICIEMBRE) Y CÁLCULO ACUMULADO
-        // -------------------------------------------------------------------------
-
+        /**
+         * Rellena el selector de años disponibles en la Pestaña 4 (Resúmenes Mensuales)
+         */
         function populateYearSelector() {
             const select = document.getElementById('summary-year');
-            const currentSelection = select.value;
+            if (!select) return;
             const currentYear = new Date().getFullYear();
+            const previousSelected = select.value ? parseInt(select.value, 10) : currentYear;
 
-            // Obtener años únicos de los movimientos + año actual
             const yearsSet = new Set([currentYear]);
             movements.forEach(m => {
                 if (m.fecha) {
@@ -918,20 +1126,9 @@
             });
 
             const sortedYears = Array.from(yearsSet).sort((a, b) => b - a);
-            select.innerHTML = '';
-
-            sortedYears.forEach(y => {
-                const opt = document.createElement('option');
-                opt.value = y;
-                opt.textContent = y;
-                select.appendChild(opt);
-            });
-
-            if (currentSelection && yearsSet.has(parseInt(currentSelection, 10))) {
-                select.value = currentSelection;
-            } else {
-                select.value = currentYear;
-            }
+            select.innerHTML = sortedYears
+                .map(y => `<option value="${y}" ${y === previousSelected ? 'selected' : ''}>${y}</option>`)
+                .join('');
         }
 
         /**
