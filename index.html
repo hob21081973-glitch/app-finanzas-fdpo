@@ -1043,24 +1043,26 @@
             const currentFilterVal = filterFondo ? filterFondo.value : 'TODOS';
             const currentAssetVal = assetFondo ? assetFondo.value : funds[0];
 
+            const allOptions = [...funds, 'NINGUNO'];
+
             if (inputFondo) {
-                inputFondo.innerHTML = funds.map(f => `<option value="${escapeHTML(f)}">${escapeHTML(f)}</option>`).join('');
-                if (funds.includes(currentInputVal)) {
+                inputFondo.innerHTML = allOptions.map(f => `<option value="${escapeHTML(f)}">${f === 'NINGUNO' ? 'NINGUNO (SIN ASIGNACIÓN)' : escapeHTML(f)}</option>`).join('');
+                if (allOptions.includes(currentInputVal)) {
                     inputFondo.value = currentInputVal;
                 }
             }
 
             if (filterFondo) {
                 filterFondo.innerHTML = `<option value="TODOS">FONDO: TODOS</option>` +
-                    funds.map(f => `<option value="${escapeHTML(f)}">${escapeHTML(f)}</option>`).join('');
-                if (currentFilterVal === 'TODOS' || funds.includes(currentFilterVal)) {
+                    allOptions.map(f => `<option value="${escapeHTML(f)}">${escapeHTML(f)}</option>`).join('');
+                if (currentFilterVal === 'TODOS' || allOptions.includes(currentFilterVal)) {
                     filterFondo.value = currentFilterVal;
                 }
             }
 
             if (assetFondo) {
-                assetFondo.innerHTML = funds.map(f => `<option value="${escapeHTML(f)}">CARGAR A FONDO: ${escapeHTML(f)}</option>`).join('');
-                if (funds.includes(currentAssetVal)) {
+                assetFondo.innerHTML = allOptions.map(f => `<option value="${escapeHTML(f)}">CARGAR A FONDO: ${escapeHTML(f)}</option>`).join('');
+                if (allOptions.includes(currentAssetVal)) {
                     assetFondo.value = currentAssetVal;
                 }
             }
@@ -1070,6 +1072,13 @@
          * Abre el modal rápido para crear un nuevo fondo o editar el fondo seleccionado
          */
         function openFundModal(mode = 'create') {
+            if (mode === 'edit') {
+                const selectedFund = document.getElementById('input-fondo').value;
+                if (selectedFund === 'NINGUNO') {
+                    showToast('La opción "NINGUNO" es fija del sistema y no se puede renombrar.', 'info');
+                    return;
+                }
+            }
             const modal = document.getElementById('fund-modal');
             const modeInput = document.getElementById('fund-modal-mode');
             const oldNameInput = document.getElementById('fund-modal-old-name');
@@ -1122,6 +1131,12 @@
 
             if (!newName) {
                 showToast('Ingrese un nombre válido para el fondo.', 'error');
+                return;
+            }
+            if (newName === 'NINGUNO') {
+                showToast('La opción "NINGUNO" ya viene integrada en el selector.', 'info');
+                populateFundSelectors('NINGUNO');
+                closeFundModal();
                 return;
             }
 
@@ -1439,7 +1454,7 @@
             if (!mov) return;
 
             const movFondo = (mov.fondo || 'APORTACIONES').toUpperCase();
-            if (!funds.includes(movFondo)) {
+            if (movFondo !== 'NINGUNO' && !funds.includes(movFondo)) {
                 funds.push(movFondo);
                 saveFunds();
             }
@@ -1637,8 +1652,8 @@
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${cuentaBadge}">
                                     ${m.cuenta}
                                 </span>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
-                                    ${escapeHTML(movFondo)}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold ${movFondo === 'NINGUNO' ? 'bg-slate-100 text-slate-600 border-slate-300' : 'bg-indigo-50 text-indigo-800 border-indigo-200'}">
+                                    ${movFondo === 'NINGUNO' ? 'SIN FONDO (NINGUNO)' : escapeHTML(movFondo)}
                                 </span>
                             </div>
                         </td>
@@ -1663,12 +1678,17 @@
 
             const balances = {};
             funds.forEach(f => { balances[f] = 0; });
+            let unassignedBalance = 0;
 
             movements.forEach(m => {
                 const f = (m.fondo || 'APORTACIONES').toUpperCase();
-                if (balances[f] === undefined) balances[f] = 0;
                 const factor = m.movimiento === 'INGRESO' ? 1 : -1;
-                balances[f] += m.valor * factor;
+                if (f === 'NINGUNO') {
+                    unassignedBalance += m.valor * factor;
+                } else {
+                    if (balances[f] === undefined) balances[f] = 0;
+                    balances[f] += m.valor * factor;
+                }
             });
 
             container.innerHTML = '';
@@ -1692,6 +1712,24 @@
                 `;
                 container.appendChild(card);
             });
+
+            // Tarjeta de Efectivo Libre / Sin Asignación (NINGUNO)
+            const freeCard = document.createElement('div');
+            freeCard.className = 'rounded-xl border border-dashed border-slate-300 bg-white p-4 flex items-center justify-between';
+            freeCard.innerHTML = `
+                <div class="min-w-0 pr-2">
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block truncate" title="EFECTIVO LIBRE (NINGUNO)">
+                        SIN FONDO (NINGUNO)
+                    </span>
+                    <span class="text-lg sm:text-xl font-extrabold tracking-tight block mt-1 ${unassignedBalance < 0 ? 'text-rose-700' : 'text-slate-800'}">
+                        ${formatCurrency(unassignedBalance)}
+                    </span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                    <i class="ph-duotone ph-wallet text-xl"></i>
+                </div>
+            `;
+            container.appendChild(freeCard);
         }
 
         /**
@@ -1772,8 +1810,8 @@
                         </span>
                     </td>
                     <td class="py-3.5 px-4 whitespace-nowrap">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
-                            <i class="ph-bold ph-folder"></i>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold ${movFondo === 'NINGUNO' ? 'bg-slate-100 text-slate-600 border border-slate-300' : 'bg-indigo-50 text-indigo-800 border border-indigo-200'}">
+                            <i class="ph-bold ${movFondo === 'NINGUNO' ? 'ph-minus-circle' : 'ph-folder'}"></i>
                             ${escapeHTML(movFondo)}
                         </span>
                     </td>
@@ -1976,7 +2014,8 @@
         function calculateYearlyFundsData(year) {
             const allFundNames = Array.from(new Set([
                 ...funds,
-                ...movements.map(m => (m.fondo || 'APORTACIONES').toUpperCase())
+                ...movements.map(m => (m.fondo || 'APORTACIONES').toUpperCase()).filter(f => f !== 'NINGUNO'),
+                'NINGUNO'
             ]));
 
             return allFundNames.map(fundName => {
@@ -1999,7 +2038,7 @@
                 });
 
                 return {
-                    fundName,
+                    fundName: fundName === 'NINGUNO' ? 'NINGUNO (EFECTIVO LIBRE)' : fundName,
                     inicial,
                     ingresosAnio,
                     egresosAnio,
@@ -2594,7 +2633,7 @@
 
                     // Asegurar que todos los fondos de los movimientos importados existan en el catálogo
                     movements.forEach(m => {
-                        if (!funds.includes(m.fondo)) funds.push(m.fondo);
+                        if (m.fondo !== 'NINGUNO' && !funds.includes(m.fondo)) funds.push(m.fondo);
                     });
                     saveFunds();
                     populateFundSelectors();
