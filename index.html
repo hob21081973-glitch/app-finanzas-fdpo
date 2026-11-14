@@ -99,6 +99,11 @@
                     <i class="ph-bold ph-chart-bar text-lg"></i>
                     <span>4. Resúmenes Mensuales</span>
                 </button>
+                <button id="tab-btn-bienes" onclick="switchTab('bienes')" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all whitespace-nowrap">
+                    <i class="ph-bold ph-desktop-tower text-lg"></i>
+                    <span>5. Inventario y Bienes</span>
+                    <span id="badge-assets-count" class="ml-1 px-2 py-0.5 text-xs rounded-full bg-slate-200 text-slate-700 font-bold">0</span>
+                </button>
             </nav>
         </div>
     </div>
@@ -505,6 +510,248 @@
             </div>
         </section>
 
+        <!-- ===================================================================== -->
+        <!-- PESTAÑA 5: INVENTARIO Y BIENES (ALTAS, BAJAS Y EQUIPO DE OFICINA)     -->
+        <!-- ===================================================================== -->
+        <section id="panel-bienes" class="tab-panel hidden space-y-6">
+
+            <!-- Tarjetas Resumen de Patrimonio y Bienes -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Valor Total Activos Vigentes -->
+                <div class="bg-gradient-to-br from-slate-900 via-brand-900 to-slate-900 text-white rounded-2xl p-5 shadow-md flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-brand-200 block mb-1">Valor Bienes Activos</span>
+                        <span id="asset-card-valor-activo" class="text-2xl sm:text-3xl font-extrabold tracking-tight">L. 0.00</span>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-brand-500/20 border border-brand-400/30 flex items-center justify-center text-brand-300 shrink-0">
+                        <i class="ph-duotone ph-buildings text-2xl"></i>
+                    </div>
+                </div>
+
+                <!-- Cantidad de Bienes Activos -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">Unidades en Inventario Activo</span>
+                        <span id="asset-card-cantidad" class="text-2xl sm:text-3xl font-extrabold text-slate-900">0</span>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
+                        <i class="ph-duotone ph-check-square-offset text-2xl"></i>
+                    </div>
+                </div>
+
+                <!-- Valor de Bajas / Descartes -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">Bienes Dados de Baja (L.)</span>
+                        <span id="asset-card-valor-baja" class="text-2xl sm:text-3xl font-extrabold text-rose-700">L. 0.00</span>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shrink-0">
+                        <i class="ph-duotone ph-archive-box text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid Principal: Formulario (Izquierda) + Listado de Bienes (Derecha) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+                <!-- Formulario de Alta / Baja de Bienes (5 cols) -->
+                <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="ph-duotone ph-package text-2xl text-brand-600"></i>
+                            <div>
+                                <h2 id="asset-form-title" class="text-base font-bold text-slate-900">Registrar Bien / Equipo</h2>
+                                <p class="text-[11px] text-slate-500">Escritura automática en MAYÚSCULAS.</p>
+                            </div>
+                        </div>
+                        <span id="asset-edit-badge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                            EDITANDO
+                        </span>
+                    </div>
+
+                    <form id="asset-form" class="p-5 space-y-4" novalidate>
+                        <input type="hidden" id="asset-edit-id" value="">
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Fecha -->
+                            <div>
+                                <label for="asset-fecha" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                    Fecha <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date" id="asset-fecha" required
+                                    class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+
+                            <!-- Tipo de Gestión (ALTA / BAJA) -->
+                            <div>
+                                <label for="asset-operacion" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                    Estado / Gestión <span class="text-red-500">*</span>
+                                </label>
+                                <select id="asset-operacion" required
+                                    class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <option value="ALTA">ALTA / ACTIVO (+)</option>
+                                    <option value="BAJA">BAJA / DESCARTE (-)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Categoría -->
+                            <div>
+                                <label for="asset-categoria" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                    Categoría <span class="text-red-500">*</span>
+                                </label>
+                                <select id="asset-categoria" required
+                                    class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <option value="EQUIPO DE OFICINA">EQUIPO DE OFICINA</option>
+                                    <option value="EQUIPO DE CÓMPUTO">EQUIPO DE CÓMPUTO</option>
+                                    <option value="MOBILIARIO">MOBILIARIO</option>
+                                    <option value="VEHÍCULOS">VEHÍCULOS</option>
+                                    <option value="HERRAMIENTAS">HERRAMIENTAS</option>
+                                    <option value="OTROS BIENES">OTROS BIENES</option>
+                                </select>
+                            </div>
+
+                            <!-- Cantidad -->
+                            <div>
+                                <label for="asset-cantidad" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                    Cantidad <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" id="asset-cantidad" min="1" step="1" value="1" required
+                                    class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+                        </div>
+
+                        <!-- Descripción / Nombre / Serie del Bien -->
+                        <div>
+                            <label for="asset-descripcion" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                Descripción / Código del Bien <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="asset-descripcion" required placeholder="EJ: IMPRESORA EPSON L3250 - SERIE X892"
+                                class="force-uppercase w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+
+                        <!-- Valor Total del Bien L. -->
+                        <div>
+                            <label for="asset-valor" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                Valor Total del Bien L. <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative flex items-center">
+                                <span class="absolute left-3.5 text-sm font-extrabold text-slate-500 select-none">L.</span>
+                                <input type="text" id="asset-valor" inputmode="decimal" placeholder="0.00" required autocomplete="off"
+                                    class="w-full rounded-xl border border-slate-300 pl-9 pr-3.5 py-2 text-right text-base font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+                        </div>
+
+                        <!-- Observación / Responsable / Motivo de Baja -->
+                        <div>
+                            <label for="asset-observacion" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                Observación / Ubicación / Motivo <span class="text-red-500">*</span>
+                            </label>
+                            <textarea id="asset-observacion" rows="2" required placeholder="RESPONSABLE ASIGNADO, PROVEEDOR O MOTIVO DE BAJA..."
+                                class="force-uppercase w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                        </div>
+
+                        <!-- Conexión Opcional con Caja/Banco (Solo en creación nueva) -->
+                        <div id="asset-link-finance-box" class="p-3 rounded-xl bg-brand-50/70 border border-brand-200/80 space-y-2.5">
+                            <label class="flex items-start gap-2.5 cursor-pointer select-none">
+                                <input type="checkbox" id="asset-sync-finance" onchange="toggleAssetFinanceAccount()"
+                                    class="mt-0.5 w-4 h-4 rounded text-brand-600 focus:ring-brand-500 border-slate-300">
+                                <span class="text-xs font-semibold text-slate-700 leading-snug">
+                                    Descontar también como <strong>EGRESO</strong> en Caja Chica o Banco
+                                </span>
+                            </label>
+                            <div id="asset-finance-account-wrapper" class="hidden pl-6">
+                                <select id="asset-finance-cuenta" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-bold text-slate-800 bg-white">
+                                    <option value="CAJA CHICA">DESCONTAR DE: CAJA CHICA</option>
+                                    <option value="BANCO">DESCONTAR DE: BANCO</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="pt-1 flex flex-col sm:flex-row items-center justify-end gap-2.5">
+                            <button type="button" id="btn-cancel-asset-edit" onclick="cancelAssetEdit()" class="hidden w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+                                Cancelar
+                            </button>
+                            <button type="submit" id="btn-submit-asset" class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition-all flex items-center justify-center gap-2">
+                                <i class="ph-bold ph-floppy-disk text-base"></i>
+                                <span id="btn-submit-asset-text">Guardar Bien</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tabla de Inventario de Bienes (7 cols) -->
+                <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-5 border-b border-slate-200 bg-slate-50/70 space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                                <h2 class="text-base font-bold text-slate-900">Listado de Bienes y Equipo</h2>
+                                <p class="text-xs text-slate-500">Control de patrimonio institucional (altas y bajas).</p>
+                            </div>
+                            <button onclick="exportAssetsToPDF()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-2xs transition-colors self-start sm:self-auto">
+                                <i class="ph-bold ph-file-pdf text-base"></i>
+                                <span>Exportar Inventario PDF</span>
+                            </button>
+                        </div>
+
+                        <!-- Filtros de Inventario -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="relative flex-grow sm:flex-grow-0">
+                                <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="text" id="asset-filter-search" placeholder="BUSCAR BIEN..." oninput="this.value = this.value.toUpperCase(); renderAssets();"
+                                    class="force-uppercase w-full sm:w-44 rounded-xl border border-slate-300 pl-8 pr-3 py-1.5 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+
+                            <select id="asset-filter-categoria" onchange="renderAssets()" class="rounded-xl border border-slate-300 px-2.5 py-1.5 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <option value="TODAS">CATEGORÍA: TODAS</option>
+                                <option value="EQUIPO DE OFICINA">EQUIPO DE OFICINA</option>
+                                <option value="EQUIPO DE CÓMPUTO">EQUIPO DE CÓMPUTO</option>
+                                <option value="MOBILIARIO">MOBILIARIO</option>
+                                <option value="VEHÍCULOS">VEHÍCULOS</option>
+                                <option value="HERRAMIENTAS">HERRAMIENTAS</option>
+                                <option value="OTROS BIENES">OTROS BIENES</option>
+                            </select>
+
+                            <select id="asset-filter-estado" onchange="renderAssets()" class="rounded-xl border border-slate-300 px-2.5 py-1.5 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <option value="TODOS">ESTADO: TODOS</option>
+                                <option value="ALTA">ACTIVOS (ALTA)</option>
+                                <option value="BAJA">DADOS DE BAJA</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100/80 border-b border-slate-200 text-[10px] font-extrabold uppercase tracking-wider text-slate-600">
+                                    <th class="py-3 px-3.5">Fecha</th>
+                                    <th class="py-3 px-3.5">Estado</th>
+                                    <th class="py-3 px-3.5">Bien / Categoría</th>
+                                    <th class="py-3 px-3.5 text-right">Valor</th>
+                                    <th class="py-3 px-3.5 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assets-table-body" class="divide-y divide-slate-100 text-xs sm:text-sm">
+                                <!-- Filas de bienes generadas dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Estado vacío de Bienes -->
+                    <div id="assets-empty-state" class="hidden py-12 px-4 text-center">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2.5">
+                            <i class="ph-duotone ph-desktop-tower text-2xl"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-800">Sin bienes registrados</h3>
+                        <p class="text-xs text-slate-500 mt-1">Utiliza el formulario de la izquierda para dar de alta equipos de oficina, mobiliario u otros bienes.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
     </main>
 
     <!-- Pie de Página -->
@@ -547,9 +794,11 @@
     <script>
         // Clave de almacenamiento en localStorage
         const STORAGE_KEY = 'finanzas_fdpo_movimientos_v1';
+        const ASSETS_STORAGE_KEY = 'finanzas_fdpo_bienes_v1';
 
-        // Estado global de movimientos
+        // Estado global de movimientos y bienes
         let movements = [];
+        let assets = [];
 
         // Nombres de los 12 meses en español
         const MONTH_NAMES = [
@@ -565,26 +814,31 @@
             
             // Cargar datos desde localStorage
             loadMovements();
+            loadAssets();
             
-            // Configurar fecha actual por defecto en el formulario
+            // Configurar fecha actual por defecto en los formularios
             setTodayDate();
             
             // Configurar eventos de entrada (Mayúsculas y formato moneda L.)
             setupFormInputs();
+            setupAssetFormInputs();
             
             // Renderizar vistas iniciales
             refreshAllViews();
         });
 
         /**
-         * Establece la fecha de hoy en formato YYYY-MM-DD en el campo de fecha
+         * Establece la fecha de hoy en formato YYYY-MM-DD en los campos de fecha
          */
         function setTodayDate() {
             const today = new Date();
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
-            document.getElementById('input-fecha').value = `${yyyy}-${mm}-${dd}`;
+            const isoToday = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('input-fecha').value = isoToday;
+            const assetFecha = document.getElementById('asset-fecha');
+            if (assetFecha) assetFecha.value = isoToday;
         }
 
         /**
@@ -602,6 +856,48 @@
             } catch (err) {
                 console.error('Error al leer localStorage:', err);
                 movements = [];
+            }
+        }
+
+        /**
+         * Carga los bienes e inventario guardados en localStorage
+         */
+        function loadAssets() {
+            try {
+                const raw = localStorage.getItem(ASSETS_STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) {
+                        assets = parsed;
+                    }
+                }
+            } catch (err) {
+                console.error('Error al leer bienes de localStorage:', err);
+                assets = [];
+            }
+        }
+
+        /**
+         * Guarda los movimientos en localStorage
+         */
+        function saveMovements() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(movements));
+            } catch (err) {
+                console.error('Error al guardar en localStorage:', err);
+                showToast('Error al guardar en el almacenamiento local.', 'error');
+            }
+        }
+
+        /**
+         * Guarda los bienes en localStorage
+         */
+        function saveAssets() {
+            try {
+                localStorage.setItem(ASSETS_STORAGE_KEY, JSON.stringify(assets));
+            } catch (err) {
+                console.error('Error al guardar bienes en localStorage:', err);
+                showToast('Error al guardar los bienes en el almacenamiento local.', 'error');
             }
         }
 
@@ -739,6 +1035,8 @@
             } else if (tabName === 'resumen') {
                 populateYearSelector();
                 renderSummary();
+            } else if (tabName === 'bienes') {
+                renderAssets();
             }
         }
 
@@ -898,9 +1196,12 @@
         function refreshAllViews() {
             renderDashboard();
             document.getElementById('badge-count').textContent = movements.length;
+            const badgeAssets = document.getElementById('badge-assets-count');
+            if (badgeAssets) badgeAssets.textContent = assets.length;
             renderHistory();
             populateYearSelector();
             renderSummary();
+            renderAssets();
         }
 
         /**
@@ -1276,164 +1577,435 @@
         }
 
         // -------------------------------------------------------------------------
-        // EXPORTACIÓN A PDF (CON SELECCIÓN DE CARPETA O DESCARGA ESTÁNDAR)
+        // MÓDULO 5: GESTIÓN DE INVENTARIO Y BIENES (ALTAS Y BAJAS)
         // -------------------------------------------------------------------------
 
-        async function exportSummaryToPDF() {
+        function setupAssetFormInputs() {
+            // Forzar mayúsculas en descripción y observación
+            ['asset-descripcion', 'asset-observacion'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('input', function () {
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    this.value = this.value.toUpperCase();
+                    this.setSelectionRange(start, end);
+                });
+            });
+
+            // Formateo inteligente de moneda en Valor del Bien
+            const assetValorInput = document.getElementById('asset-valor');
+            if (assetValorInput) {
+                assetValorInput.addEventListener('input', function () {
+                    let raw = this.value.replace(/[^0-9.]/g, '');
+                    const parts = raw.split('.');
+                    if (parts.length > 2) {
+                        raw = parts[0] + '.' + parts.slice(1).join('');
+                    }
+                    if (parts[1] && parts[1].length > 2) {
+                        raw = parts[0] + '.' + parts[1].substring(0, 2);
+                    }
+                    const [intPart, decPart] = raw.split('.');
+                    const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
+                    this.value = decPart !== undefined ? `${formattedInt}.${decPart}` : formattedInt;
+                });
+
+                assetValorInput.addEventListener('blur', function () {
+                    const numericVal = parseCurrencyInput(this.value);
+                    this.value = numericVal > 0 ? formatNumberInput(numericVal) : '';
+                });
+            }
+
+            const assetForm = document.getElementById('asset-form');
+            if (assetForm) {
+                assetForm.addEventListener('submit', handleAssetFormSubmit);
+            }
+        }
+
+        function toggleAssetFinanceAccount() {
+            const checked = document.getElementById('asset-sync-finance').checked;
+            const wrapper = document.getElementById('asset-finance-account-wrapper');
+            if (checked) {
+                wrapper.classList.remove('hidden');
+            } else {
+                wrapper.classList.add('hidden');
+            }
+        }
+
+        function handleAssetFormSubmit(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('asset-edit-id').value.trim();
+            const fecha = document.getElementById('asset-fecha').value;
+            const operacion = document.getElementById('asset-operacion').value.toUpperCase();
+            const categoria = document.getElementById('asset-categoria').value.toUpperCase();
+            const cantidad = parseInt(document.getElementById('asset-cantidad').value, 10) || 1;
+            const descripcion = document.getElementById('asset-descripcion').value.trim().toUpperCase();
+            const valor = parseCurrencyInput(document.getElementById('asset-valor').value);
+            const observacion = document.getElementById('asset-observacion').value.trim().toUpperCase();
+
+            if (!fecha) {
+                showToast('Seleccione la fecha del registro del bien.', 'error');
+                return;
+            }
+            if (!descripcion) {
+                showToast('Ingrese la descripción o código del bien.', 'error');
+                document.getElementById('asset-descripcion').focus();
+                return;
+            }
+            if (valor <= 0) {
+                showToast('El valor del bien debe ser mayor a L. 0.00.', 'error');
+                document.getElementById('asset-valor').focus();
+                return;
+            }
+            if (!observacion) {
+                showToast('Ingrese una observación, ubicación o motivo.', 'error');
+                document.getElementById('asset-observacion').focus();
+                return;
+            }
+
+            if (editId) {
+                const idx = assets.findIndex(a => a.id === editId);
+                if (idx !== -1) {
+                    assets[idx] = {
+                        ...assets[idx],
+                        fecha,
+                        operacion,
+                        categoria,
+                        cantidad,
+                        descripcion,
+                        valor,
+                        observacion,
+                        updatedAt: Date.now()
+                    };
+                    showToast('Registro de bien actualizado correctamente.', 'success');
+                }
+                resetAssetFormState();
+            } else {
+                const newAsset = {
+                    id: 'BIEN-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase(),
+                    fecha,
+                    operacion,
+                    categoria,
+                    cantidad,
+                    descripcion,
+                    valor,
+                    observacion,
+                    createdAt: Date.now()
+                };
+                assets.push(newAsset);
+
+                // Si el usuario marcó descontar de Caja o Banco al dar de alta
+                const syncFinance = document.getElementById('asset-sync-finance').checked;
+                if (syncFinance) {
+                    const cuentaSeleccionada = document.getElementById('asset-finance-cuenta').value.toUpperCase();
+                    const tipoFinanza = operacion === 'ALTA' ? 'EGRESO' : 'INGRESO';
+                    const prefijoObs = operacion === 'ALTA' ? 'COMPRA / ALTA DE BIEN:' : 'VENTA / RECUPERACIÓN DE BIEN:';
+                    movements.push({
+                        id: 'MOV-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase(),
+                        fecha,
+                        movimiento: tipoFinanza,
+                        cuenta: cuentaSeleccionada,
+                        valor,
+                        observacion: `${prefijoObs} ${descripcion} (${cantidad} UNID.)`,
+                        createdAt: Date.now()
+                    });
+                    saveMovements();
+                    showToast(`Bien guardado y ${tipoFinanza} registrado en ${cuentaSeleccionada}.`, 'success');
+                } else {
+                    showToast('Bien registrado en el inventario correctamente.', 'success');
+                }
+
+                resetAssetFormState();
+            }
+
+            saveAssets();
+            refreshAllViews();
+        }
+
+        function editAsset(id) {
+            const item = assets.find(a => a.id === id);
+            if (!item) return;
+
+            document.getElementById('asset-edit-id').value = item.id;
+            document.getElementById('asset-fecha').value = item.fecha;
+            document.getElementById('asset-operacion').value = item.operacion;
+            document.getElementById('asset-categoria').value = item.categoria;
+            document.getElementById('asset-cantidad').value = item.cantidad || 1;
+            document.getElementById('asset-descripcion').value = item.descripcion;
+            document.getElementById('asset-valor').value = formatNumberInput(item.valor);
+            document.getElementById('asset-observacion').value = item.observacion;
+
+            document.getElementById('asset-form-title').textContent = 'Editar Bien / Equipo';
+            document.getElementById('asset-edit-badge').classList.remove('hidden');
+            document.getElementById('btn-cancel-asset-edit').classList.remove('hidden');
+            document.getElementById('btn-submit-asset-text').textContent = 'Actualizar Bien';
+            document.getElementById('asset-link-finance-box').classList.add('hidden');
+
+            document.getElementById('panel-bienes').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function toggleAssetStatus(id) {
+            const idx = assets.findIndex(a => a.id === id);
+            if (idx === -1) return;
+            const current = assets[idx];
+            const nextStatus = current.operacion === 'ALTA' ? 'BAJA' : 'ALTA';
+
+            openConfirmModal(
+                nextStatus === 'BAJA' ? 'Dar de Baja el Bien' : 'Reactivar Bien en Inventario',
+                `¿Desea cambiar el estado de "${current.descripcion}" a ${nextStatus === 'BAJA' ? 'BAJA / DESCARTE' : 'ALTA / ACTIVO'}?`,
+                () => {
+                    assets[idx].operacion = nextStatus;
+                    assets[idx].updatedAt = Date.now();
+                    saveAssets();
+                    refreshAllViews();
+                    showToast(`Estado actualizado a ${nextStatus}.`, 'success');
+                }
+            );
+        }
+
+        function deleteAsset(id) {
+            const item = assets.find(a => a.id === id);
+            if (!item) return;
+
+            openConfirmModal(
+                'Eliminar Registro de Bien',
+                `¿Está seguro de eliminar "${item.descripcion}" por ${formatCurrency(item.valor)} del inventario?`,
+                () => {
+                    assets = assets.filter(a => a.id !== id);
+                    if (document.getElementById('asset-edit-id').value === id) {
+                        resetAssetFormState();
+                    }
+                    saveAssets();
+                    refreshAllViews();
+                    showToast('Registro eliminado del inventario.', 'success');
+                }
+            );
+        }
+
+        function cancelAssetEdit() {
+            resetAssetFormState();
+            showToast('Edición cancelada.', 'info');
+        }
+
+        function resetAssetFormState() {
+            document.getElementById('asset-edit-id').value = '';
+            setTodayDate();
+            document.getElementById('asset-operacion').value = 'ALTA';
+            document.getElementById('asset-categoria').value = 'EQUIPO DE OFICINA';
+            document.getElementById('asset-cantidad').value = 1;
+            document.getElementById('asset-descripcion').value = '';
+            document.getElementById('asset-valor').value = '';
+            document.getElementById('asset-observacion').value = '';
+            document.getElementById('asset-sync-finance').checked = false;
+            document.getElementById('asset-finance-account-wrapper').classList.add('hidden');
+            document.getElementById('asset-link-finance-box').classList.remove('hidden');
+
+            document.getElementById('asset-form-title').textContent = 'Registrar Bien / Equipo';
+            document.getElementById('asset-edit-badge').classList.add('hidden');
+            document.getElementById('btn-cancel-asset-edit').classList.add('hidden');
+            document.getElementById('btn-submit-asset-text').textContent = 'Guardar Bien';
+        }
+
+        function renderAssets() {
+            const tbody = document.getElementById('assets-table-body');
+            const emptyState = document.getElementById('assets-empty-state');
+            if (!tbody) return;
+
+            // Calcular totales generales de patrimonio
+            let valorActivoTotal = 0;
+            let unidadesActivas = 0;
+            let valorBajaTotal = 0;
+
+            assets.forEach(a => {
+                if (a.operacion === 'ALTA') {
+                    valorActivoTotal += a.valor;
+                    unidadesActivas += (Number(a.cantidad) || 1);
+                } else {
+                    valorBajaTotal += a.valor;
+                }
+            });
+
+            document.getElementById('asset-card-valor-activo').textContent = formatCurrency(valorActivoTotal);
+            document.getElementById('asset-card-cantidad').textContent = unidadesActivas;
+            document.getElementById('asset-card-valor-baja').textContent = formatCurrency(valorBajaTotal);
+
+            // Filtros
+            const search = (document.getElementById('asset-filter-search')?.value || '').trim().toUpperCase();
+            const catFilter = document.getElementById('asset-filter-categoria')?.value || 'TODAS';
+            const estFilter = document.getElementById('asset-filter-estado')?.value || 'TODOS';
+
+            const sorted = [...assets].sort((a, b) => {
+                if (a.fecha !== b.fecha) return b.fecha.localeCompare(a.fecha);
+                return (b.createdAt || 0) - (a.createdAt || 0);
+            });
+
+            const filtered = sorted.filter(a => {
+                if (catFilter !== 'TODAS' && a.categoria !== catFilter) return false;
+                if (estFilter !== 'TODOS' && a.operacion !== estFilter) return false;
+                if (search && !a.descripcion.includes(search) && !a.observacion.includes(search)) return false;
+                return true;
+            });
+
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            filtered.forEach(a => {
+                const isAlta = a.operacion === 'ALTA';
+                const badgeClass = isAlta
+                    ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                    : 'bg-rose-100 text-rose-800 border-rose-200';
+
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-slate-50/90 transition-colors ${!isAlta ? 'opacity-75 bg-slate-50/40' : ''}`;
+                tr.innerHTML = `
+                    <td class="py-3 px-3.5 whitespace-nowrap text-xs font-semibold text-slate-600">
+                        ${formatDateDisplay(a.fecha)}
+                    </td>
+                    <td class="py-3 px-3.5 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold border ${badgeClass}">
+                            ${isAlta ? 'ACTIVO' : 'BAJA'}
+                        </span>
+                    </td>
+                    <td class="py-3 px-3.5">
+                        <div class="font-bold text-slate-800 text-xs sm:text-sm ${!isAlta ? 'line-through text-slate-500' : ''}">
+                            ${escapeHTML(a.descripcion)} <span class="text-[11px] font-extrabold text-brand-700">(x${a.cantidad || 1})</span>
+                        </div>
+                        <div class="text-[11px] font-semibold text-slate-500 mt-0.5">
+                            <span class="text-slate-700 font-bold">${escapeHTML(a.categoria)}</span> • ${escapeHTML(a.observacion)}
+                        </div>
+                    </td>
+                    <td class="py-3 px-3.5 whitespace-nowrap text-right font-extrabold text-xs sm:text-sm ${isAlta ? 'text-slate-900' : 'text-rose-700'}">
+                        ${formatCurrency(a.valor)}
+                    </td>
+                    <td class="py-3 px-3.5 whitespace-nowrap text-center">
+                        <div class="inline-flex items-center gap-1">
+                            <button onclick="toggleAssetStatus('${a.id}')" title="${isAlta ? 'Dar de baja' : 'Reactivar bien'}" class="p-1.5 rounded-lg text-xs font-bold ${isAlta ? 'bg-slate-100 text-slate-700 hover:bg-rose-100 hover:text-rose-700' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'} border border-slate-200 transition-colors">
+                                <i class="ph-bold ${isAlta ? 'ph-arrow-circle-down' : 'ph-arrow-circle-up'}"></i>
+                            </button>
+                            <button onclick="editAsset('${a.id}')" title="Editar bien" class="p-1.5 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 transition-colors">
+                                <i class="ph-bold ph-pencil-simple"></i>
+                            </button>
+                            <button onclick="deleteAsset('${a.id}')" title="Eliminar registro" class="p-1.5 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition-colors">
+                                <i class="ph-bold ph-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function exportAssetsToPDF() {
             try {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter' });
 
-                const year = parseInt(document.getElementById('summary-year').value, 10) || new Date().getFullYear();
-                const data = calculateYearlySummaryData(year);
                 const now = new Date();
-                const fechaGen = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                const fechaGen = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 
-                // Encabezado del Documento PDF
-                doc.setFillColor(12, 74, 110); // Azul corporativo oscuro
+                let totalActivo = 0;
+                let totalBaja = 0;
+                assets.forEach(a => {
+                    if (a.operacion === 'ALTA') totalActivo += a.valor;
+                    else totalBaja += a.valor;
+                });
+
+                doc.setFillColor(12, 74, 110);
                 doc.rect(0, 0, 280, 26, 'F');
-
                 doc.setTextColor(255, 255, 255);
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(18);
                 doc.text('FINANZAS FDPO', 14, 12);
-
                 doc.setFont('helvetica', 'normal');
                 doc.setFontSize(10);
-                doc.text(`RESUMEN ANUAL DE CAJA CHICA Y BANCOS (ENERO - DICIEMBRE ${year})`, 14, 19);
-
+                doc.text('INVENTARIO GENERAL DE BIENES, EQUIPO DE OFICINA Y ACTIVOS', 14, 19);
                 doc.setFontSize(9);
-                doc.text(`Generado: ${fechaGen}`, 265, 12, { align: 'right' });
+                doc.text(`Fecha de Emisión: ${fechaGen}`, 265, 12, { align: 'right' });
                 doc.text('Moneda: Lempiras (L.)', 265, 19, { align: 'right' });
 
-                // Cuadros resumen de saldos actuales
                 doc.setTextColor(30, 41, 59);
-                doc.setFontSize(9);
                 doc.setFont('helvetica', 'bold');
-                doc.text(`SALDO CIERRE CAJA CHICA (${year}): ${formatCurrency(data.totals.finalSaldoCaja)}`, 14, 34);
-                doc.text(`SALDO CIERRE BANCO (${year}): ${formatCurrency(data.totals.finalSaldoBanco)}`, 105, 34);
-                doc.text(`SALDO CONSOLIDADO (${year}): ${formatCurrency(data.totals.finalSaldoConsolidado)}`, 190, 34);
+                doc.setFontSize(9.5);
+                doc.text(`VALOR BIENES ACTIVOS: ${formatCurrency(totalActivo)}`, 14, 34);
+                doc.text(`VALOR BIENES DADOS DE BAJA: ${formatCurrency(totalBaja)}`, 115, 34);
+                doc.text(`TOTAL REGISTROS: ${assets.length}`, 220, 34);
 
-                // Construir cuerpo de tabla para AutoTable
-                const tableBody = data.rows.map(r => [
-                    r.monthName,
-                    formatCurrency(r.ingCaja),
-                    formatCurrency(r.egrCaja),
-                    formatCurrency(r.saldoCaja),
-                    formatCurrency(r.ingBanco),
-                    formatCurrency(r.egrBanco),
-                    formatCurrency(r.saldoBanco),
-                    formatCurrency(r.saldoConsolidado)
-                ]);
-
-                // Fila de totales al final
-                tableBody.push([
-                    `TOTAL / CIERRE ${year}`,
-                    formatCurrency(data.totals.totalIngCaja),
-                    formatCurrency(data.totals.totalEgrCaja),
-                    formatCurrency(data.totals.finalSaldoCaja),
-                    formatCurrency(data.totals.totalIngBanco),
-                    formatCurrency(data.totals.totalEgrBanco),
-                    formatCurrency(data.totals.finalSaldoBanco),
-                    formatCurrency(data.totals.finalSaldoConsolidado)
+                const sorted = [...assets].sort((a, b) => b.fecha.localeCompare(a.fecha));
+                const body = sorted.map(a => [
+                    formatDateDisplay(a.fecha),
+                    a.operacion === 'ALTA' ? 'ACTIVO' : 'BAJA',
+                    a.categoria,
+                    String(a.cantidad || 1),
+                    a.descripcion,
+                    a.observacion,
+                    formatCurrency(a.valor)
                 ]);
 
                 doc.autoTable({
                     startY: 39,
-                    head: [
-                        [
-                            { content: 'MES', rowSpan: 2, styles: { halign: 'left', valign: 'middle' } },
-                            { content: 'CAJA CHICA (L.)', colSpan: 3, styles: { halign: 'center', fillColor: [146, 64, 14] } },
-                            { content: 'BANCO (L.)', colSpan: 3, styles: { halign: 'center', fillColor: [3, 105, 161] } },
-                            { content: 'SALDO TOTAL\nCONSOLIDADO', rowSpan: 2, styles: { halign: 'right', valign: 'middle', fillColor: [6, 95, 70] } }
-                        ],
-                        [
-                            { content: 'INGRESOS', styles: { halign: 'right' } },
-                            { content: 'EGRESOS', styles: { halign: 'right' } },
-                            { content: 'SALDO CAJA', styles: { halign: 'right' } },
-                            { content: 'INGRESOS', styles: { halign: 'right' } },
-                            { content: 'EGRESOS', styles: { halign: 'right' } },
-                            { content: 'SALDO BANCO', styles: { halign: 'right' } }
-                        ]
-                    ],
-                    body: tableBody,
+                    head: [['FECHA', 'ESTADO', 'CATEGORÍA', 'CANT.', 'DESCRIPCIÓN DEL BIEN', 'OBSERVACIÓN / UBICACIÓN', 'VALOR (L.)']],
+                    body: body,
                     theme: 'grid',
-                    styles: {
-                        font: 'helvetica',
-                        fontSize: 8.5,
-                        cellPadding: 2.8,
-                        lineColor: [203, 213, 225],
-                        lineWidth: 0.2
-                    },
-                    headStyles: {
-                        fillColor: [30, 41, 59],
-                        textColor: [255, 255, 255],
-                        fontStyle: 'bold',
-                        fontSize: 8
-                    },
+                    styles: { font: 'helvetica', fontSize: 8, cellPadding: 2.5 },
+                    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
                     columnStyles: {
-                        0: { fontStyle: 'bold', cellWidth: 30 },
-                        1: { halign: 'right' },
-                        2: { halign: 'right' },
-                        3: { halign: 'right', fontStyle: 'bold', fillColor: [255, 251, 235] },
-                        4: { halign: 'right' },
-                        5: { halign: 'right' },
-                        6: { halign: 'right', fontStyle: 'bold', fillColor: [240, 249, 255] },
-                        7: { halign: 'right', fontStyle: 'bold', fillColor: [236, 253, 245] }
-                    },
-                    didParseCell: function (hookData) {
-                        // Resaltar fila final de totales
-                        if (hookData.section === 'body' && hookData.row.index === 12) {
-                            hookData.cell.styles.fontStyle = 'bold';
-                            hookData.cell.styles.fillColor = [226, 232, 240];
-                            hookData.cell.styles.textColor = [15, 23, 42];
-                        }
+                        0: { cellWidth: 22 },
+                        1: { cellWidth: 18, fontStyle: 'bold' },
+                        2: { cellWidth: 36 },
+                        3: { cellWidth: 14, halign: 'center' },
+                        4: { cellWidth: 65, fontStyle: 'bold' },
+                        5: { cellWidth: 68 },
+                        6: { cellWidth: 28, halign: 'right', fontStyle: 'bold' }
                     }
                 });
 
-                const fileName = `Finanzas_FDPO_Resumen_${year}.pdf`;
+                const fileName = `Finanzas_FDPO_Inventario_Bienes_${now.toISOString().split('T')[0]}.pdf`;
                 const pdfBlob = doc.output('blob');
 
-                // Intentar abrir selector nativo de carpeta/archivo si el navegador lo soporta (Chrome/Edge)
                 if (window.showSaveFilePicker) {
                     try {
                         const fileHandle = await window.showSaveFilePicker({
                             suggestedName: fileName,
-                            types: [{
-                                description: 'Documento PDF',
-                                accept: { 'application/pdf': ['.pdf'] }
-                            }]
+                            types: [{ description: 'Documento PDF', accept: { 'application/pdf': ['.pdf'] } }]
                         });
                         const writable = await fileHandle.createWritable();
                         await writable.write(pdfBlob);
                         await writable.close();
-                        showToast('PDF guardado exitosamente en la carpeta seleccionada.', 'success');
+                        showToast('Inventario PDF guardado en la carpeta seleccionada.', 'success');
                         return;
                     } catch (pickerErr) {
-                        // Si el usuario canceló el diálogo, no descargar duplicado
-                        if (pickerErr.name === 'AbortError') {
-                            return;
-                        }
-                        // Si falló por restricciones de iframe/sandbox, continuar a descarga estándar
+                        if (pickerErr.name === 'AbortError') return;
                     }
                 }
 
-                // Respaldo universal de descarga estándar (Firefox, Safari, Móviles, GitHub Pages)
                 doc.save(fileName);
-                showToast('Reporte PDF descargado correctamente.', 'success');
-
-            } catch (error) {
-                console.error('Error generando PDF:', error);
-                showToast('Ocurrió un error al generar el archivo PDF.', 'error');
+                showToast('Inventario PDF descargado correctamente.', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Error al generar el PDF de inventario.', 'error');
             }
         }
 
         // -------------------------------------------------------------------------
-        // RESPALDO Y RESTAURACIÓN JSON (OPCIONAL / DISCRETO)
+        // RESPALDO Y RESTAURACIÓN JSON (INCLUYE MOVIMIENTOS Y BIENES)
         // -------------------------------------------------------------------------
 
         function exportBackupJSON() {
-            const dataStr = JSON.stringify(movements, null, 2);
+            const payload = {
+                version: 2,
+                app: 'Finanzas FDPO',
+                exportedAt: new Date().toISOString(),
+                movements: movements,
+                assets: assets
+            };
+            const dataStr = JSON.stringify(payload, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1444,7 +2016,7 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showToast('Respaldo JSON descargado.', 'success');
+            showToast('Respaldo JSON descargado (Caja, Bancos e Inventario).', 'success');
         }
 
         function importBackupJSON(event) {
@@ -1455,11 +2027,13 @@
             reader.onload = function (e) {
                 try {
                     const imported = JSON.parse(e.target.result);
-                    if (!Array.isArray(imported)) {
+                    // Soportar tanto formato v1 (solo array de movimientos) como v2 (objeto con movements y assets)
+                    const movList = Array.isArray(imported) ? imported : (Array.isArray(imported.movements) ? imported.movements : null);
+                    if (!movList) {
                         throw new Error('Formato inválido');
                     }
-                    // Normalizar registros importados
-                    movements = imported.map(item => ({
+
+                    movements = movList.map(item => ({
                         id: item.id || ('MOV-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6)),
                         fecha: item.fecha || new Date().toISOString().split('T')[0],
                         movimiento: (item.movimiento || 'INGRESO').toUpperCase(),
@@ -1468,9 +2042,25 @@
                         observacion: (item.observacion || '').toUpperCase(),
                         createdAt: item.createdAt || Date.now()
                     }));
+
+                    if (Array.isArray(imported.assets)) {
+                        assets = imported.assets.map(item => ({
+                            id: item.id || ('BIEN-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6)),
+                            fecha: item.fecha || new Date().toISOString().split('T')[0],
+                            operacion: (item.operacion || 'ALTA').toUpperCase(),
+                            categoria: (item.categoria || 'EQUIPO DE OFICINA').toUpperCase(),
+                            cantidad: Number(item.cantidad) || 1,
+                            descripcion: (item.descripcion || '').toUpperCase(),
+                            valor: Number(item.valor) || 0,
+                            observacion: (item.observacion || '').toUpperCase(),
+                            createdAt: item.createdAt || Date.now()
+                        }));
+                        saveAssets();
+                    }
+
                     saveMovements();
                     refreshAllViews();
-                    showToast(`Se restauraron ${movements.length} movimientos correctamente.`, 'success');
+                    showToast(`Restaurados ${movements.length} movimientos y ${assets.length} bienes.`, 'success');
                 } catch (err) {
                     showToast('El archivo seleccionado no es un respaldo válido.', 'error');
                 }
