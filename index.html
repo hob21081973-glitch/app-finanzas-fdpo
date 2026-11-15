@@ -116,76 +116,67 @@
         <!-- ===================================================================== -->
         <section id="panel-dashboard" class="tab-panel space-y-6">
             
-            <!-- Bloque Principal de Saldos en Tiempo Real -->
-            <div class="bg-gradient-to-r from-slate-900 via-brand-900 to-slate-900 rounded-2xl p-6 sm:p-7 shadow-lg text-white">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <!-- Bloque Principal de Saldos en Tiempo Real (Efectivo Libre + Fondos/Proyectos) -->
+            <div class="bg-gradient-to-r from-slate-900 via-brand-900 to-slate-900 rounded-2xl p-5 sm:p-6 shadow-lg text-white">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
                     <div>
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-brand-500/20 text-brand-200 border border-brand-400/30 mb-2">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-500/20 text-brand-200 border border-brand-400/30 mb-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Estado Financiero Actualizado
+                            Cuadre General en Tiempo Real
                         </span>
-                        <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">Resumen Ejecutivo de Saldos</h2>
+                        <h2 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">Saldos de Cuentas Libres y Fondos / Proyectos</h2>
                     </div>
-                    <button onclick="switchTab('nuevo')" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white bg-brand-600 hover:bg-brand-500 shadow-md shadow-brand-950/40 border border-brand-400/30 transition-all self-start sm:self-auto">
-                        <i class="ph-bold ph-plus-circle text-lg"></i>
-                        <span>Registrar Nuevo Movimiento</span>
-                    </button>
-                </div>
-
-                <!-- Tarjetas de Saldos Actuales -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Saldo Caja Chica -->
-                    <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-5 flex items-center justify-between">
-                        <div>
-                            <span class="text-xs font-semibold uppercase tracking-wider text-brand-200 block mb-1.5">Saldo Actual Caja Chica</span>
-                            <span id="card-saldo-caja" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">L. 0.00</span>
-                        </div>
-                        <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 shrink-0">
-                            <i class="ph-duotone ph-coins text-2xl"></i>
-                        </div>
-                    </div>
-
-                    <!-- Saldo Bancos -->
-                    <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-5 flex items-center justify-between">
-                        <div>
-                            <span class="text-xs font-semibold uppercase tracking-wider text-brand-200 block mb-1.5">Saldo Actual Bancos</span>
-                            <span id="card-saldo-banco" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">L. 0.00</span>
-                        </div>
-                        <div class="w-12 h-12 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-300 shrink-0">
-                            <i class="ph-duotone ph-bank text-2xl"></i>
-                        </div>
-                    </div>
-
-                    <!-- Saldo Total General -->
-                    <div class="bg-gradient-to-br from-emerald-500/25 to-teal-600/25 backdrop-blur-md border border-emerald-400/30 rounded-2xl p-5 flex items-center justify-between">
-                        <div>
-                            <span class="text-xs font-semibold uppercase tracking-wider text-emerald-200 block mb-1.5">Saldo Total Consolidado</span>
-                            <span id="card-saldo-total" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">L. 0.00</span>
-                        </div>
-                        <div class="w-12 h-12 rounded-xl bg-emerald-500/30 border border-emerald-400/40 flex items-center justify-center text-emerald-200 shrink-0">
-                            <i class="ph-duotone ph-scales text-2xl"></i>
-                        </div>
+                    <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+                        <button onclick="openFundModal('create')" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-brand-100 bg-white/10 hover:bg-white/20 border border-white/15 transition-all">
+                            <i class="ph-bold ph-folder-plus text-base"></i>
+                            <span>+ Nuevo Fondo</span>
+                        </button>
+                        <button onclick="switchTab('nuevo')" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-brand-600 hover:bg-brand-500 shadow-md shadow-brand-950/40 border border-brand-400/30 transition-all">
+                            <i class="ph-bold ph-plus-circle text-base"></i>
+                            <span>Nuevo Movimiento</span>
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Disponibilidad Actual por Fondo / Asignación -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                            <i class="ph-duotone ph-folders text-xl text-brand-600"></i>
-                            <span>Disponibilidad Actual por Fondo / Asignación</span>
-                        </h3>
-                        <p class="text-xs text-slate-500">La suma de todos los fondos equivale exactamente al Saldo Total Consolidado (Caja + Bancos).</p>
+                <!-- Grid Unificado y Compacto de Saldos (Caja, Banco, Aportaciones, Proyectos y Total Consolidado) -->
+                <div id="dash-unified-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    <!-- Saldo Caja Chica (Libre) -->
+                    <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl p-3.5 flex items-center justify-between">
+                        <div class="min-w-0 pr-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-200 block truncate">Caja Chica (Libre)</span>
+                            <span id="card-saldo-caja" class="text-lg sm:text-xl font-extrabold text-white tracking-tight block mt-0.5">L. 0.00</span>
+                        </div>
+                        <div class="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 shrink-0">
+                            <i class="ph-duotone ph-coins text-lg"></i>
+                        </div>
                     </div>
-                    <button onclick="openFundModal('create')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-colors self-start sm:self-auto">
-                        <i class="ph-bold ph-folder-plus text-sm"></i>
-                        <span>+ Nuevo Fondo</span>
-                    </button>
-                </div>
-                <div id="dash-funds-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                    <!-- Tarjetas de fondos generadas dinámicamente -->
+
+                    <!-- Saldo Bancos (Libre) -->
+                    <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl p-3.5 flex items-center justify-between">
+                        <div class="min-w-0 pr-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-sky-200 block truncate">Bancos (Libre)</span>
+                            <span id="card-saldo-banco" class="text-lg sm:text-xl font-extrabold text-white tracking-tight block mt-0.5">L. 0.00</span>
+                        </div>
+                        <div class="w-9 h-9 rounded-lg bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-300 shrink-0">
+                            <i class="ph-duotone ph-bank text-lg"></i>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor Dinámico para Aportaciones y Proyectos -->
+                    <div id="dash-funds-inline-cards" class="contents">
+                        <!-- Tarjetas de cada fondo/proyecto generadas dinámicamente -->
+                    </div>
+
+                    <!-- Saldo Total Consolidado -->
+                    <div class="bg-gradient-to-br from-emerald-500/30 to-teal-600/30 backdrop-blur-md border border-emerald-400/40 rounded-xl p-3.5 flex items-center justify-between">
+                        <div class="min-w-0 pr-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-200 block truncate">Total Consolidado</span>
+                            <span id="card-saldo-total" class="text-lg sm:text-xl font-extrabold text-white tracking-tight block mt-0.5">L. 0.00</span>
+                        </div>
+                        <div class="w-9 h-9 rounded-lg bg-emerald-500/30 border border-emerald-400/40 flex items-center justify-center text-emerald-200 shrink-0">
+                            <i class="ph-duotone ph-scales text-lg"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -350,7 +341,7 @@
                         <!-- Cuenta (CAJA CHICA / BANCO) -->
                         <div>
                             <label for="input-cuenta" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                                Cuenta <span class="text-red-500">*</span>
+                                Cuenta / Vía <span class="text-red-500">*</span>
                             </label>
                             <select id="input-cuenta" required
                                 class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow">
@@ -365,7 +356,7 @@
                                 Fondo / Asignación <span class="text-red-500">*</span>
                             </label>
                             <div class="flex items-center gap-1.5">
-                                <select id="input-fondo" required
+                                <select id="input-fondo" required onchange="updateFundImpactHint()"
                                     class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow">
                                     <!-- Opciones de fondos generadas dinámicamente -->
                                 </select>
@@ -379,6 +370,12 @@
                                 </button>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Indicador Dinámico de Impacto Contable -->
+                    <div id="fund-impact-hint" class="px-3.5 py-2.5 rounded-xl bg-indigo-50/80 border border-indigo-200/80 text-xs font-semibold text-indigo-900 flex items-center gap-2">
+                        <i class="ph-fill ph-info text-indigo-600 text-base shrink-0"></i>
+                        <span id="fund-impact-hint-text">Este movimiento afectará únicamente el saldo independiente del fondo seleccionado.</span>
                     </div>
 
                     <!-- Valor en Lempiras L. 000,000.00 -->
@@ -500,7 +497,7 @@
                 <div class="p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <h2 class="text-lg font-bold text-slate-900">Resúmenes Mensuales (Enero – Diciembre)</h2>
-                        <p class="text-xs text-slate-500">Saldos acumulados y actualizados al cierre de cada mes para Caja Chica y Bancos.</p>
+                        <p class="text-xs text-slate-500">Saldos acumulados independientes de Efectivo Libre (Caja Chica y Bancos) y Fondos Asignados.</p>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3">
@@ -551,7 +548,7 @@
                 <!-- Nota Informativa sobre Saldos Acumulados -->
                 <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center gap-2 text-xs text-slate-500">
                     <i class="ph-fill ph-info text-brand-600 text-base shrink-0"></i>
-                    <span>Los saldos mensuales reflejan el balance acumulado real hasta el último día de cada mes, incluyendo saldos arrastrados de periodos anteriores.</span>
+                    <span>Caja Chica y Banco muestran el flujo y saldo acumulado libre (sin asignación de fondo). La columna Consolidado suma Caja Libre + Banco Libre + Saldos de todos los Fondos.</span>
                 </div>
 
                 <!-- Desglose Anual por Fondo / Asignación -->
@@ -1046,10 +1043,11 @@
             const allOptions = [...funds, 'NINGUNO'];
 
             if (inputFondo) {
-                inputFondo.innerHTML = allOptions.map(f => `<option value="${escapeHTML(f)}">${f === 'NINGUNO' ? 'NINGUNO (SIN ASIGNACIÓN)' : escapeHTML(f)}</option>`).join('');
+                inputFondo.innerHTML = allOptions.map(f => `<option value="${escapeHTML(f)}">${f === 'NINGUNO' ? 'NINGUNO (EFECTIVO LIBRE CAJA/BANCO)' : escapeHTML(f)}</option>`).join('');
                 if (allOptions.includes(currentInputVal)) {
                     inputFondo.value = currentInputVal;
                 }
+                updateFundImpactHint();
             }
 
             if (filterFondo) {
@@ -1152,23 +1150,16 @@
                 populateFundSelectors(newName);
                 refreshAllViews();
                 closeFundModal();
-                showToast(`Fondo "${newName}" creado y seleccionado.`, 'success');
+                showToast(`Fondo "${newName}" creado correctamente.`, 'success');
             } else if (mode === 'edit') {
-                if (newName === oldName) {
-                    closeFundModal();
-                    return;
-                }
-                if (funds.includes(newName)) {
-                    showToast(`Ya existe otro fondo llamado "${newName}".`, 'error');
-                    return;
-                }
                 const idx = funds.indexOf(oldName);
                 if (idx !== -1) {
                     funds[idx] = newName;
+                } else if (!funds.includes(newName)) {
+                    funds.push(newName);
                 }
-                // Actualizar todos los movimientos asociados al fondo renombrado
                 movements.forEach(m => {
-                    if ((m.fondo || 'APORTACIONES').toUpperCase() === oldName) {
+                    if ((m.fondo || '').toUpperCase() === oldName) {
                         m.fondo = newName;
                     }
                 });
@@ -1178,6 +1169,25 @@
                 refreshAllViews();
                 closeFundModal();
                 showToast(`Fondo actualizado de "${oldName}" a "${newName}".`, 'success');
+            }
+        }
+
+        /**
+         * Muestra una nota clara indicando si el movimiento impactará Caja/Banco libre o un Fondo independiente
+         */
+        function updateFundImpactHint() {
+            const inputFondo = document.getElementById('input-fondo');
+            const hintBox = document.getElementById('fund-impact-hint');
+            const hintText = document.getElementById('fund-impact-hint-text');
+            if (!inputFondo || !hintBox || !hintText) return;
+
+            const selected = (inputFondo.value || '').toUpperCase();
+            if (selected === 'NINGUNO') {
+                hintBox.className = 'px-3.5 py-2.5 rounded-xl bg-amber-50/90 border border-amber-200 text-xs font-semibold text-amber-900 flex items-center gap-2';
+                hintText.textContent = 'Sin fondo asignado: el monto sumará o restará directamente en el saldo disponible de CAJA CHICA o BANCO.';
+            } else {
+                hintBox.className = 'px-3.5 py-2.5 rounded-xl bg-indigo-50/80 border border-indigo-200/80 text-xs font-semibold text-indigo-900 flex items-center gap-2';
+                hintText.textContent = `Asignado a ${selected}: el monto sumará o restará únicamente en "${selected}" sin alterar el efectivo libre de Caja Chica ni Banco.`;
             }
         }
 
@@ -1465,6 +1475,7 @@
             document.getElementById('input-movimiento').value = mov.movimiento;
             document.getElementById('input-cuenta').value = mov.cuenta;
             document.getElementById('input-fondo').value = movFondo;
+            updateFundImpactHint();
             document.getElementById('input-valor').value = formatNumberInput(mov.valor);
             document.getElementById('input-observacion').value = mov.observacion;
 
@@ -1501,6 +1512,7 @@
             if (funds.length > 0) {
                 document.getElementById('input-fondo').value = funds[0];
             }
+            updateFundImpactHint();
             document.getElementById('input-valor').value = '';
             document.getElementById('input-observacion').value = '';
 
@@ -1555,8 +1567,9 @@
          * Calcula y actualiza todo el contenido de la Pestaña 1: Dashboard
          */
         function renderDashboard() {
-            let saldoCaja = 0;
-            let saldoBanco = 0;
+            let saldoCajaLibre = 0;
+            let saldoBancoLibre = 0;
+            let saldoTotalFondos = 0;
 
             const now = new Date();
             const currentYear = now.getFullYear();
@@ -1567,10 +1580,18 @@
 
             movements.forEach(m => {
                 const factor = m.movimiento === 'INGRESO' ? 1 : -1;
-                if (m.cuenta === 'CAJA CHICA') {
-                    saldoCaja += m.valor * factor;
-                } else if (m.cuenta === 'BANCO') {
-                    saldoBanco += m.valor * factor;
+                const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
+
+                if (movFondo === 'NINGUNO') {
+                    // Efectivo libre en Caja Chica o Banco
+                    if (m.cuenta === 'CAJA CHICA') {
+                        saldoCajaLibre += m.valor * factor;
+                    } else if (m.cuenta === 'BANCO') {
+                        saldoBancoLibre += m.valor * factor;
+                    }
+                } else {
+                    // Saldo independiente del Fondo asignado
+                    saldoTotalFondos += m.valor * factor;
                 }
 
                 // Verificar si pertenece al mes y año actual
@@ -1588,11 +1609,11 @@
                 }
             });
 
-            const saldoTotal = saldoCaja + saldoBanco;
+            const saldoTotal = saldoCajaLibre + saldoBancoLibre + saldoTotalFondos;
 
             // 1. Actualizar tarjetas principales
-            document.getElementById('card-saldo-caja').textContent = formatCurrency(saldoCaja);
-            document.getElementById('card-saldo-banco').textContent = formatCurrency(saldoBanco);
+            document.getElementById('card-saldo-caja').textContent = formatCurrency(saldoCajaLibre);
+            document.getElementById('card-saldo-banco').textContent = formatCurrency(saldoBancoLibre);
             document.getElementById('card-saldo-total').textContent = formatCurrency(saldoTotal);
 
             // 1.5 Actualizar tarjetas de Disponibilidad por Fondo
@@ -1670,25 +1691,21 @@
         }
 
         /**
-         * Renderiza las tarjetas de disponibilidad por cada Fondo en el Dashboard
+         * Renderiza las tarjetas compactas de cada Fondo/Proyecto dentro del panel ejecutivo del Dashboard
          */
         function renderDashboardFunds() {
-            const container = document.getElementById('dash-funds-grid');
+            const container = document.getElementById('dash-funds-inline-cards');
             if (!container) return;
 
             const balances = {};
             funds.forEach(f => { balances[f] = 0; });
-            let unassignedBalance = 0;
 
             movements.forEach(m => {
                 const f = (m.fondo || 'APORTACIONES').toUpperCase();
+                if (f === 'NINGUNO') return;
                 const factor = m.movimiento === 'INGRESO' ? 1 : -1;
-                if (f === 'NINGUNO') {
-                    unassignedBalance += m.valor * factor;
-                } else {
-                    if (balances[f] === undefined) balances[f] = 0;
-                    balances[f] += m.valor * factor;
-                }
+                if (balances[f] === undefined) balances[f] = 0;
+                balances[f] += m.valor * factor;
             });
 
             container.innerHTML = '';
@@ -1696,145 +1713,21 @@
                 const val = balances[fundName];
                 const isNegative = val < 0;
                 const card = document.createElement('div');
-                card.className = 'rounded-xl border border-slate-200 bg-slate-50/70 p-4 flex items-center justify-between hover:border-brand-300 transition-colors';
+                card.className = 'bg-indigo-950/50 backdrop-blur-md border border-indigo-400/25 rounded-xl p-3.5 flex items-center justify-between';
                 card.innerHTML = `
                     <div class="min-w-0 pr-2">
-                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 block truncate" title="${escapeHTML(fundName)}">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-200 block truncate" title="${escapeHTML(fundName)}">
                             ${escapeHTML(fundName)}
                         </span>
-                        <span class="text-lg sm:text-xl font-extrabold tracking-tight block mt-1 ${isNegative ? 'text-rose-700' : 'text-slate-900'}">
+                        <span class="text-lg sm:text-xl font-extrabold tracking-tight block mt-0.5 ${isNegative ? 'text-rose-300' : 'text-white'}">
                             ${formatCurrency(val)}
                         </span>
                     </div>
-                    <div class="w-10 h-10 rounded-xl bg-indigo-100/80 text-indigo-700 flex items-center justify-center shrink-0">
-                        <i class="ph-duotone ph-folder-open text-xl"></i>
+                    <div class="w-9 h-9 rounded-lg bg-indigo-500/25 border border-indigo-400/30 flex items-center justify-center text-indigo-200 shrink-0">
+                        <i class="ph-duotone ph-folder-open text-lg"></i>
                     </div>
                 `;
                 container.appendChild(card);
-            });
-
-            // Tarjeta de Efectivo Libre / Sin Asignación (NINGUNO)
-            const freeCard = document.createElement('div');
-            freeCard.className = 'rounded-xl border border-dashed border-slate-300 bg-white p-4 flex items-center justify-between';
-            freeCard.innerHTML = `
-                <div class="min-w-0 pr-2">
-                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block truncate" title="EFECTIVO LIBRE (NINGUNO)">
-                        SIN FONDO (NINGUNO)
-                    </span>
-                    <span class="text-lg sm:text-xl font-extrabold tracking-tight block mt-1 ${unassignedBalance < 0 ? 'text-rose-700' : 'text-slate-800'}">
-                        ${formatCurrency(unassignedBalance)}
-                    </span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
-                    <i class="ph-duotone ph-wallet text-xl"></i>
-                </div>
-            `;
-            container.appendChild(freeCard);
-        }
-
-        /**
-         * Formatea una fecha YYYY-MM-DD a DD/MM/YYYY para lectura clara
-         */
-        function formatDateDisplay(isoDate) {
-            if (!isoDate || !isoDate.includes('-')) return isoDate || '';
-            const [y, m, d] = isoDate.split('-');
-            return `${d}/${m}/${y}`;
-        }
-
-        /**
-         * Renderiza el historial completo ordenado de más reciente a más antiguo (Pestaña 3)
-         */
-        function renderHistory() {
-            const tbody = document.getElementById('history-table-body');
-            const emptyState = document.getElementById('history-empty-state');
-
-            const searchFilter = (document.getElementById('filter-search')?.value || '').trim().toUpperCase();
-            const cuentaFilter = document.getElementById('filter-cuenta')?.value || 'TODAS';
-            const fondoFilter = document.getElementById('filter-fondo')?.value || 'TODOS';
-            const tipoFilter = document.getElementById('filter-tipo')?.value || 'TODOS';
-
-            // Ordenar cronológicamente de más reciente a más antigua
-            const sorted = [...movements].sort((a, b) => {
-                if (a.fecha !== b.fecha) {
-                    return b.fecha.localeCompare(a.fecha);
-                }
-                return (b.createdAt || 0) - (a.createdAt || 0);
-            });
-
-            // Aplicar filtros activos
-            const filtered = sorted.filter(m => {
-                const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
-                if (cuentaFilter !== 'TODAS' && m.cuenta !== cuentaFilter) return false;
-                if (fondoFilter !== 'TODOS' && movFondo !== fondoFilter) return false;
-                if (tipoFilter !== 'TODOS' && m.movimiento !== tipoFilter) return false;
-                if (searchFilter && !m.observacion.includes(searchFilter)) return false;
-                return true;
-            });
-
-            tbody.innerHTML = '';
-
-            if (filtered.length === 0) {
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-
-            filtered.forEach(m => {
-                const isIngreso = m.movimiento === 'INGRESO';
-                const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
-                const movBadge = isIngreso
-                    ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                    : 'bg-rose-100 text-rose-800 border-rose-200';
-                const cuentaBadge = m.cuenta === 'CAJA CHICA'
-                    ? 'bg-amber-100 text-amber-800 border-amber-200'
-                    : 'bg-sky-100 text-sky-800 border-sky-200';
-                const amountColor = isIngreso ? 'text-emerald-700' : 'text-rose-700';
-
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50/90 transition-colors';
-                tr.innerHTML = `
-                    <td class="py-3.5 px-4 whitespace-nowrap font-semibold text-slate-700">
-                        ${formatDateDisplay(m.fecha)}
-                    </td>
-                    <td class="py-3.5 px-4 whitespace-nowrap">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border ${movBadge}">
-                            <i class="ph-bold ${isIngreso ? 'ph-arrow-down-left' : 'ph-arrow-up-right'}"></i>
-                            ${m.movimiento}
-                        </span>
-                    </td>
-                    <td class="py-3.5 px-4 whitespace-nowrap">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border ${cuentaBadge}">
-                            <i class="ph-bold ${m.cuenta === 'CAJA CHICA' ? 'ph-coins' : 'ph-bank'}"></i>
-                            ${m.cuenta}
-                        </span>
-                    </td>
-                    <td class="py-3.5 px-4 whitespace-nowrap">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold ${movFondo === 'NINGUNO' ? 'bg-slate-100 text-slate-600 border border-slate-300' : 'bg-indigo-50 text-indigo-800 border border-indigo-200'}">
-                            <i class="ph-bold ${movFondo === 'NINGUNO' ? 'ph-minus-circle' : 'ph-folder'}"></i>
-                            ${escapeHTML(movFondo)}
-                        </span>
-                    </td>
-                    <td class="py-3.5 px-4 whitespace-nowrap text-right font-extrabold ${amountColor}">
-                        ${isIngreso ? '+' : '-'} ${formatCurrency(m.valor)}
-                    </td>
-                    <td class="py-3.5 px-4 font-medium text-slate-800 max-w-xs break-words">
-                        ${escapeHTML(m.observacion)}
-                    </td>
-                    <td class="py-3.5 px-4 whitespace-nowrap text-center">
-                        <div class="inline-flex items-center justify-center gap-1.5">
-                            <button onclick="editMovement('${m.id}')" title="Editar movimiento" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 transition-colors">
-                                <i class="ph-bold ph-pencil-simple"></i>
-                                <span>Editar</span>
-                            </button>
-                            <button onclick="deleteMovement('${m.id}')" title="Eliminar movimiento" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition-colors">
-                                <i class="ph-bold ph-trash"></i>
-                                <span>Eliminar</span>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
             });
         }
 
@@ -1868,13 +1761,19 @@
             // Calcular saldo inicial arrastrado de años anteriores al año seleccionado
             let runningCaja = 0;
             let runningBanco = 0;
+            let runningFondos = 0;
 
             movements.forEach(m => {
                 const movYear = parseInt(m.fecha.split('-')[0], 10);
                 if (movYear < year) {
                     const factor = m.movimiento === 'INGRESO' ? 1 : -1;
-                    if (m.cuenta === 'CAJA CHICA') runningCaja += m.valor * factor;
-                    if (m.cuenta === 'BANCO') runningBanco += m.valor * factor;
+                    const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
+                    if (movFondo === 'NINGUNO') {
+                        if (m.cuenta === 'CAJA CHICA') runningCaja += m.valor * factor;
+                        if (m.cuenta === 'BANCO') runningBanco += m.valor * factor;
+                    } else {
+                        runningFondos += m.valor * factor;
+                    }
                 }
             });
 
@@ -1889,27 +1788,34 @@
                 let egrCaja = 0;
                 let ingBanco = 0;
                 let egrBanco = 0;
+                let netoFondosMes = 0;
 
                 movements.forEach(m => {
                     const [yStr, mStr] = m.fecha.split('-');
                     const movYear = parseInt(yStr, 10);
                     const movMonth = parseInt(mStr, 10) - 1;
+                    const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
 
                     if (movYear === year && movMonth === monthIdx) {
-                        if (m.cuenta === 'CAJA CHICA') {
-                            if (m.movimiento === 'INGRESO') ingCaja += m.valor;
-                            else egrCaja += m.valor;
-                        } else if (m.cuenta === 'BANCO') {
-                            if (m.movimiento === 'INGRESO') ingBanco += m.valor;
-                            else egrBanco += m.valor;
+                        if (movFondo === 'NINGUNO') {
+                            if (m.cuenta === 'CAJA CHICA') {
+                                if (m.movimiento === 'INGRESO') ingCaja += m.valor;
+                                else egrCaja += m.valor;
+                            } else if (m.cuenta === 'BANCO') {
+                                if (m.movimiento === 'INGRESO') ingBanco += m.valor;
+                                else egrBanco += m.valor;
+                            }
+                        } else {
+                            netoFondosMes += (m.movimiento === 'INGRESO' ? m.valor : -m.valor);
                         }
                     }
                 });
 
-                // Actualizar saldos acumulados al cierre del mes
+                // Actualizar saldos acumulados independientes al cierre del mes
                 runningCaja += (ingCaja - egrCaja);
                 runningBanco += (ingBanco - egrBanco);
-                const saldoConsolidado = runningCaja + runningBanco;
+                runningFondos += netoFondosMes;
+                const saldoConsolidado = runningCaja + runningBanco + runningFondos;
 
                 totalIngCaja += ingCaja;
                 totalEgrCaja += egrCaja;
@@ -1938,7 +1844,7 @@
                     totalIngBanco,
                     totalEgrBanco,
                     finalSaldoBanco: runningBanco,
-                    finalSaldoConsolidado: runningCaja + runningBanco
+                    finalSaldoConsolidado: runningCaja + runningBanco + runningFondos
                 }
             };
         }
@@ -2009,13 +1915,115 @@
         }
 
         /**
+         * Formatea fecha YYYY-MM-DD a DD/MM/YYYY
+         */
+        function formatDateDisplay(isoDate) {
+            if (!isoDate) return '';
+            const parts = isoDate.split('-');
+            if (parts.length !== 3) return isoDate;
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        /**
+         * Renderiza la tabla de Historial de Movimientos (Pestaña 3)
+         */
+        function renderHistory() {
+            const tbody = document.getElementById('history-table-body');
+            const emptyState = document.getElementById('history-empty-state');
+            if (!tbody || !emptyState) return;
+
+            const search = (document.getElementById('filter-search')?.value || '').trim().toUpperCase();
+            const cuentaFilter = document.getElementById('filter-cuenta')?.value || 'TODAS';
+            const fondoFilter = document.getElementById('filter-fondo')?.value || 'TODOS';
+            const tipoFilter = document.getElementById('filter-tipo')?.value || 'TODOS';
+
+            const sorted = [...movements].sort((a, b) => {
+                if (a.fecha !== b.fecha) return b.fecha.localeCompare(a.fecha);
+                return (b.createdAt || 0) - (a.createdAt || 0);
+            });
+
+            const filtered = sorted.filter(m => {
+                const mFondo = (m.fondo || 'APORTACIONES').toUpperCase();
+                if (cuentaFilter !== 'TODAS' && m.cuenta !== cuentaFilter) return false;
+                if (fondoFilter !== 'TODOS' && mFondo !== fondoFilter) return false;
+                if (tipoFilter !== 'TODOS' && m.movimiento !== tipoFilter) return false;
+                if (search && !(m.observacion || '').toUpperCase().includes(search)) return false;
+                return true;
+            });
+
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            filtered.forEach(m => {
+                const isIngreso = m.movimiento === 'INGRESO';
+                const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
+                const movBadge = isIngreso
+                    ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                    : 'bg-rose-100 text-rose-800 border-rose-200';
+                const cuentaBadge = m.cuenta === 'CAJA CHICA'
+                    ? 'bg-amber-50 text-amber-800 border-amber-200'
+                    : 'bg-sky-50 text-sky-800 border-sky-200';
+                const fondoBadge = movFondo === 'NINGUNO'
+                    ? 'bg-slate-100 text-slate-600 border-slate-300'
+                    : 'bg-indigo-50 text-indigo-800 border-indigo-200';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/90 transition-colors';
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 whitespace-nowrap font-semibold text-slate-700 text-xs sm:text-sm">
+                        ${formatDateDisplay(m.fecha)}
+                    </td>
+                    <td class="py-3.5 px-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-extrabold border ${movBadge}">
+                            ${m.movimiento}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${cuentaBadge}">
+                            ${m.cuenta}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${fondoBadge}">
+                            ${movFondo === 'NINGUNO' ? 'NINGUNO (LIBRE)' : escapeHTML(movFondo)}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 whitespace-nowrap text-right font-extrabold ${isIngreso ? 'text-emerald-700' : 'text-rose-700'}">
+                        ${isIngreso ? '+' : '-'} ${formatCurrency(m.valor)}
+                    </td>
+                    <td class="py-3.5 px-4 font-medium text-slate-700 max-w-xs break-words">
+                        ${escapeHTML(m.observacion)}
+                    </td>
+                    <td class="py-3.5 px-4 whitespace-nowrap text-center">
+                        <div class="inline-flex items-center gap-1.5">
+                            <button onclick="editMovement('${m.id}')" title="Editar movimiento" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 transition-colors inline-flex items-center gap-1">
+                                <i class="ph-bold ph-pencil-simple"></i>
+                                <span>Editar</span>
+                            </button>
+                            <button onclick="deleteMovement('${m.id}')" title="Eliminar movimiento" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition-colors inline-flex items-center gap-1">
+                                <i class="ph-bold ph-trash"></i>
+                                <span>Eliminar</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        /**
          * Calcula y renderiza el desglose anual por Fondo / Asignación
          */
         function calculateYearlyFundsData(year) {
             const allFundNames = Array.from(new Set([
                 ...funds,
-                ...movements.map(m => (m.fondo || 'APORTACIONES').toUpperCase()).filter(f => f !== 'NINGUNO'),
-                'NINGUNO'
+                ...movements.map(m => (m.fondo || 'APORTACIONES').toUpperCase()).filter(f => f !== 'NINGUNO')
             ]));
 
             return allFundNames.map(fundName => {
@@ -2038,7 +2046,7 @@
                 });
 
                 return {
-                    fundName: fundName === 'NINGUNO' ? 'NINGUNO (EFECTIVO LIBRE)' : fundName,
+                    fundName,
                     inicial,
                     ingresosAnio,
                     egresosAnio,
