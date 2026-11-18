@@ -124,7 +124,7 @@
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                             Cuadre General en Tiempo Real
                         </span>
-                        <h2 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">Saldos de Cuentas Libres y Fondos / Proyectos</h2>
+                        <h2 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">Saldos de Cuentas Fondos/Proyectos</h2>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
                         <button onclick="openFundModal('create')" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-brand-100 bg-white/10 hover:bg-white/20 border border-white/15 transition-all">
@@ -143,7 +143,7 @@
                     <!-- Saldo Caja Chica (Libre) -->
                     <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl p-3.5 flex items-center justify-between">
                         <div class="min-w-0 pr-2">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-200 block truncate">Caja Chica (Libre)</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-200 block truncate">Caja Chica</span>
                             <span id="card-saldo-caja" class="text-lg sm:text-xl font-extrabold text-white tracking-tight block mt-0.5">L. 0.00</span>
                         </div>
                         <div class="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 shrink-0">
@@ -154,7 +154,7 @@
                     <!-- Saldo Bancos (Libre) -->
                     <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl p-3.5 flex items-center justify-between">
                         <div class="min-w-0 pr-2">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-sky-200 block truncate">Bancos (Libre)</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-sky-200 block truncate">Bancos</span>
                             <span id="card-saldo-banco" class="text-lg sm:text-xl font-extrabold text-white tracking-tight block mt-0.5">L. 0.00</span>
                         </div>
                         <div class="w-9 h-9 rounded-lg bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-300 shrink-0">
@@ -694,7 +694,7 @@
                             <label for="asset-descripcion" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                                 Descripción / Código del Bien <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" id="asset-descripcion" required placeholder="EJ: IMPRESORA EPSON L3250 - SERIE X892"
+                            <input type="text" id="asset-descripcion" required placeholder=""
                                 class="force-uppercase w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500">
                         </div>
 
@@ -879,7 +879,7 @@
                     <label for="fund-modal-input" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                         Nombre del Fondo <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" id="fund-modal-input" required placeholder="EJ: DONACIONES, EVENTOS, PROYECTO..."
+                    <input type="text" id="fund-modal-input" required placeholder=""
                         oninput="this.value = this.value.toUpperCase()"
                         class="force-uppercase w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
@@ -1043,7 +1043,7 @@
             const allOptions = [...funds, 'NINGUNO'];
 
             if (inputFondo) {
-                inputFondo.innerHTML = allOptions.map(f => `<option value="${escapeHTML(f)}">${f === 'NINGUNO' ? 'NINGUNO (EFECTIVO LIBRE CAJA/BANCO)' : escapeHTML(f)}</option>`).join('');
+                inputFondo.innerHTML = allOptions.map(f => `<option value="${escapeHTML(f)}">${f === 'NINGUNO' ? 'NINGUNO' : escapeHTML(f)}</option>`).join('');
                 if (allOptions.includes(currentInputVal)) {
                     inputFondo.value = currentInputVal;
                 }
@@ -1516,8 +1516,8 @@
             document.getElementById('input-valor').value = '';
             document.getElementById('input-observacion').value = '';
 
-            document.getElementById('form-title').textContent = 'Registrar Nuevo Movimiento';
-            document.getElementById('form-subtitle').textContent = 'Todos los textos se registran automáticamente en MAYÚSCULAS.';
+            document.getElementById('form-title').textContent = 'Nuevo Movimiento';
+            document.getElementById('form-subtitle').textContent = '';
             document.getElementById('edit-mode-badge').classList.add('hidden');
             document.getElementById('btn-cancel-edit').classList.add('hidden');
             document.getElementById('btn-submit-text').textContent = 'Guardar Movimiento';
