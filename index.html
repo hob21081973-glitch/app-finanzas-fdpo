@@ -113,27 +113,27 @@
 
         <!-- ===================================================================== -->
         <!-- PESTAÑA 1: DASHBOARD (PANEL PRINCIPAL DE ENTRADA)                     -->
-        <!-- ===================================================================== -->
-        <section id="panel-dashboard" class="tab-panel space-y-6">
-            
-            <!-- Bloque Principal de Saldos en Tiempo Real (Efectivo Libre + Fondos/Proyectos) -->
-            <div class="bg-gradient-to-r from-slate-900 via-brand-900 to-slate-900 rounded-2xl p-5 sm:p-6 shadow-lg text-white">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-                    <div>
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-500/20 text-brand-200 border border-brand-400/30 mb-1.5">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Cuadre General en Tiempo Real
-                        </span>
-                        <h2 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">Saldos de Cuentas Fondos/Proyectos</h2>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-                        <button onclick="openFundModal('create')" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-brand-100 bg-white/10 hover:bg-white/20 border border-white/15 transition-all">
-                            <i class="ph-bold ph-folder-plus text-base"></i>
-                            <span>+ Nuevo Fondo</span>
-                        </button>
-                        <button onclick="switchTab('nuevo')" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-brand-600 hover:bg-brand-500 shadow-md shadow-brand-950/40 border border-brand-400/30 transition-all">
-                            <i class="ph-bold ph-plus-circle text-base"></i>
-                            <span>Nuevo Movimiento</span>
+                    <!-- Filtros Discretos y Exportación PDF -->
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <select id="filter-cuenta" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="TODAS">CUENTA: TODAS</option>
+                            <option value="CAJA CHICA">CAJA CHICA</option>
+                            <option value="BANCO">BANCO</option>
+                        </select>
+
+                        <select id="filter-fondo" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="TODOS">FONDO: TODOS</option>
+                        </select>
+
+                        <select id="filter-tipo" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="TODOS">TIPO: TODOS</option>
+                            <option value="INGRESO">INGRESOS</option>
+                            <option value="EGRESO">EGRESOS</option>
+                        </select>
+
+                        <button onclick="exportHistoryToPDF()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-sm shadow-rose-600/20 transition-all">
+                            <i class="ph-bold ph-file-pdf text-base"></i>
+                            <span>Generar Reporte PDF</span>
                         </button>
                     </div>
                 </div>
@@ -143,7 +143,7 @@
                     <!-- Saldo Caja Chica (Libre) -->
                     <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl p-3.5 flex items-center justify-between">
                         <div class="min-w-0 pr-2">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-200 block truncate">Caja Chica</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-200 block truncate">Caja Chica (Libre)</span>
                             <span id="card-saldo-caja" class="text-lg sm:text-xl font-extrabold text-white tracking-tight block mt-0.5">L. 0.00</span>
                         </div>
                         <div class="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 shrink-0">
@@ -154,7 +154,7 @@
                     <!-- Saldo Bancos (Libre) -->
                     <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl p-3.5 flex items-center justify-between">
                         <div class="min-w-0 pr-2">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-sky-200 block truncate">Bancos</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-sky-200 block truncate">Bancos (Libre)</span>
                             <span id="card-saldo-banco" class="text-lg sm:text-xl font-extrabold text-white tracking-tight block mt-0.5">L. 0.00</span>
                         </div>
                         <div class="w-9 h-9 rounded-lg bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-300 shrink-0">
@@ -694,7 +694,7 @@
                             <label for="asset-descripcion" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                                 Descripción / Código del Bien <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" id="asset-descripcion" required placeholder=""
+                            <input type="text" id="asset-descripcion" required placeholder="EJ: IMPRESORA EPSON L3250 - SERIE X892"
                                 class="force-uppercase w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500">
                         </div>
 
@@ -879,7 +879,7 @@
                     <label for="fund-modal-input" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                         Nombre del Fondo <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" id="fund-modal-input" required placeholder=""
+                    <input type="text" id="fund-modal-input" required placeholder="EJ: DONACIONES, EVENTOS, PROYECTO..."
                         oninput="this.value = this.value.toUpperCase()"
                         class="force-uppercase w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
@@ -940,988 +940,25 @@
         });
 
         /**
-         * Establece la fecha actual del sistema en los selectores de fecha
+         * Obtiene los movimientos filtrados y ordenados para la Pestaña 3
          */
-        function setTodayDate() {
-            const now = new Date();
-            const yyyy = now.getFullYear();
-            const mm = String(now.getMonth() + 1).padStart(2, '0');
-            const dd = String(now.getDate()).padStart(2, '0');
-            const todayStr = `${yyyy}-${mm}-${dd}`;
-
-            const inputFecha = document.getElementById('input-fecha');
-            if (inputFecha) inputFecha.value = todayStr;
-
-            const assetFecha = document.getElementById('asset-fecha');
-            if (assetFecha) assetFecha.value = todayStr;
-        }
-
-        /**
-         * Cambia entre las pestañas principales de la aplicación
-         */
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-panel').forEach(panel => {
-                panel.classList.add('hidden');
-            });
-
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-brand-600', 'text-white', 'shadow-sm', 'font-bold');
-                btn.classList.add('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
-            });
-
-            const activePanel = document.getElementById(`panel-${tabName}`);
-            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-
-            if (activePanel) activePanel.classList.remove('hidden');
-            if (activeBtn) {
-                activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
-                activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-sm', 'font-bold');
-            }
-        }
-
-        /**
-         * Carga los movimientos guardados en localStorage
-         */
-        function loadMovements() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    if (Array.isArray(parsed)) {
-                        movements = parsed;
-                    }
-                }
-            } catch (err) {
-                console.error('Error al leer localStorage:', err);
-                movements = [];
-            }
-        }
-
-        /**
-         * Carga el catálogo dinámico de fondos en localStorage
-         */
-        function loadFunds() {
-            try {
-                const raw = localStorage.getItem(FUNDS_STORAGE_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        funds = Array.from(new Set(parsed.map(f => String(f).trim().toUpperCase()).filter(Boolean)));
-                        return;
-                    }
-                }
-            } catch (err) {
-                console.error('Error al leer fondos:', err);
-            }
-            funds = ['APORTACIONES', 'PROYECTO'];
-            saveFunds();
-        }
-
-        /**
-         * Guarda el catálogo de fondos en localStorage
-         */
-        function saveFunds() {
-            try {
-                localStorage.setItem(FUNDS_STORAGE_KEY, JSON.stringify(funds));
-            } catch (err) {
-                console.error('Error al guardar fondos:', err);
-            }
-        }
-
-        /**
-         * Actualiza todos los selectores desplegables de fondos en la aplicación
-         */
-        function populateFundSelectors(selectedValue = null) {
-            const inputFondo = document.getElementById('input-fondo');
-            const filterFondo = document.getElementById('filter-fondo');
-            const assetFondo = document.getElementById('asset-finance-fondo');
-
-            const currentInputVal = selectedValue || (inputFondo ? inputFondo.value : funds[0]);
-            const currentFilterVal = filterFondo ? filterFondo.value : 'TODOS';
-            const currentAssetVal = assetFondo ? assetFondo.value : funds[0];
-
-            const allOptions = [...funds, 'NINGUNO'];
-
-            if (inputFondo) {
-                inputFondo.innerHTML = allOptions.map(f => `<option value="${escapeHTML(f)}">${f === 'NINGUNO' ? 'NINGUNO' : escapeHTML(f)}</option>`).join('');
-                if (allOptions.includes(currentInputVal)) {
-                    inputFondo.value = currentInputVal;
-                }
-                updateFundImpactHint();
-            }
-
-            if (filterFondo) {
-                filterFondo.innerHTML = `<option value="TODOS">FONDO: TODOS</option>` +
-                    allOptions.map(f => `<option value="${escapeHTML(f)}">${escapeHTML(f)}</option>`).join('');
-                if (currentFilterVal === 'TODOS' || allOptions.includes(currentFilterVal)) {
-                    filterFondo.value = currentFilterVal;
-                }
-            }
-
-            if (assetFondo) {
-                assetFondo.innerHTML = allOptions.map(f => `<option value="${escapeHTML(f)}">CARGAR A FONDO: ${escapeHTML(f)}</option>`).join('');
-                if (allOptions.includes(currentAssetVal)) {
-                    assetFondo.value = currentAssetVal;
-                }
-            }
-        }
-
-        /**
-         * Abre el modal rápido para crear un nuevo fondo o editar el fondo seleccionado
-         */
-        function openFundModal(mode = 'create') {
-            if (mode === 'edit') {
-                const selectedFund = document.getElementById('input-fondo').value;
-                if (selectedFund === 'NINGUNO') {
-                    showToast('La opción "NINGUNO" es fija del sistema y no se puede renombrar.', 'info');
-                    return;
-                }
-            }
-            const modal = document.getElementById('fund-modal');
-            const modeInput = document.getElementById('fund-modal-mode');
-            const oldNameInput = document.getElementById('fund-modal-old-name');
-            const textInput = document.getElementById('fund-modal-input');
-            const titleEl = document.getElementById('fund-modal-title');
-            const subEl = document.getElementById('fund-modal-subtitle');
-            const iconEl = document.getElementById('fund-modal-icon');
-            const iconBox = document.getElementById('fund-modal-icon-box');
-            const submitBtn = document.getElementById('fund-modal-submit-btn');
-
-            modeInput.value = mode;
-
-            if (mode === 'edit') {
-                const selectedFund = document.getElementById('input-fondo').value;
-                oldNameInput.value = selectedFund;
-                textInput.value = selectedFund;
-                titleEl.textContent = 'Editar Nombre del Fondo';
-                subEl.textContent = `Se actualizará "${selectedFund}" en todos sus movimientos históricos.`;
-                iconEl.className = 'ph-bold ph-pencil-simple text-xl';
-                iconBox.className = 'w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0';
-                submitBtn.textContent = 'Actualizar Fondo';
-                submitBtn.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors';
-            } else {
-                oldNameInput.value = '';
-                textInput.value = '';
-                titleEl.textContent = 'Crear Nuevo Fondo';
-                subEl.textContent = 'El nombre se guardará automáticamente en MAYÚSCULAS.';
-                iconEl.className = 'ph-bold ph-folder-plus text-xl';
-                iconBox.className = 'w-10 h-10 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center shrink-0';
-                submitBtn.textContent = 'Crear Fondo';
-                submitBtn.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 transition-colors';
-            }
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            setTimeout(() => textInput.focus(), 50);
-        }
-
-        function closeFundModal() {
-            const modal = document.getElementById('fund-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function handleFundModalSubmit(e) {
-            e.preventDefault();
-            const mode = document.getElementById('fund-modal-mode').value;
-            const oldName = document.getElementById('fund-modal-old-name').value.trim().toUpperCase();
-            const newName = document.getElementById('fund-modal-input').value.trim().toUpperCase();
-
-            if (!newName) {
-                showToast('Ingrese un nombre válido para el fondo.', 'error');
-                return;
-            }
-            if (newName === 'NINGUNO') {
-                showToast('La opción "NINGUNO" ya viene integrada en el selector.', 'info');
-                populateFundSelectors('NINGUNO');
-                closeFundModal();
-                return;
-            }
-
-            if (mode === 'create') {
-                if (funds.includes(newName)) {
-                    showToast(`El fondo "${newName}" ya existe.`, 'info');
-                    populateFundSelectors(newName);
-                    closeFundModal();
-                    return;
-                }
-                funds.push(newName);
-                saveFunds();
-                populateFundSelectors(newName);
-                refreshAllViews();
-                closeFundModal();
-                showToast(`Fondo "${newName}" creado correctamente.`, 'success');
-            } else if (mode === 'edit') {
-                const idx = funds.indexOf(oldName);
-                if (idx !== -1) {
-                    funds[idx] = newName;
-                } else if (!funds.includes(newName)) {
-                    funds.push(newName);
-                }
-                movements.forEach(m => {
-                    if ((m.fondo || '').toUpperCase() === oldName) {
-                        m.fondo = newName;
-                    }
-                });
-                saveFunds();
-                saveMovements();
-                populateFundSelectors(newName);
-                refreshAllViews();
-                closeFundModal();
-                showToast(`Fondo actualizado de "${oldName}" a "${newName}".`, 'success');
-            }
-        }
-
-        /**
-         * Muestra una nota clara indicando si el movimiento impactará Caja/Banco libre o un Fondo independiente
-         */
-        function updateFundImpactHint() {
-            const inputFondo = document.getElementById('input-fondo');
-            const hintBox = document.getElementById('fund-impact-hint');
-            const hintText = document.getElementById('fund-impact-hint-text');
-            if (!inputFondo || !hintBox || !hintText) return;
-
-            const selected = (inputFondo.value || '').toUpperCase();
-            if (selected === 'NINGUNO') {
-                hintBox.className = 'px-3.5 py-2.5 rounded-xl bg-amber-50/90 border border-amber-200 text-xs font-semibold text-amber-900 flex items-center gap-2';
-                hintText.textContent = 'Sin fondo asignado: el monto sumará o restará directamente en el saldo disponible de CAJA CHICA o BANCO.';
-            } else {
-                hintBox.className = 'px-3.5 py-2.5 rounded-xl bg-indigo-50/80 border border-indigo-200/80 text-xs font-semibold text-indigo-900 flex items-center gap-2';
-                hintText.textContent = `Asignado a ${selected}: el monto sumará o restará únicamente en "${selected}" sin alterar el efectivo libre de Caja Chica ni Banco.`;
-            }
-        }
-
-        /**
-         * Carga los bienes e inventario guardados en localStorage
-         */
-        function loadAssets() {
-            try {
-                const raw = localStorage.getItem(ASSETS_STORAGE_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    if (Array.isArray(parsed)) {
-                        assets = parsed;
-                    }
-                }
-            } catch (err) {
-                console.error('Error al leer bienes de localStorage:', err);
-                assets = [];
-            }
-        }
-
-        /**
-         * Guarda los movimientos en localStorage
-         */
-        function saveMovements() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(movements));
-            } catch (err) {
-                console.error('Error al guardar en localStorage:', err);
-                showToast('Error al guardar en el almacenamiento local.', 'error');
-            }
-        }
-
-        /**
-         * Guarda los bienes en localStorage
-         */
-        function saveAssets() {
-            try {
-                localStorage.setItem(ASSETS_STORAGE_KEY, JSON.stringify(assets));
-            } catch (err) {
-                console.error('Error al guardar bienes en localStorage:', err);
-                showToast('Error al guardar los bienes en el almacenamiento local.', 'error');
-            }
-        }
-
-        /**
-         * Guarda los movimientos en localStorage
-         */
-        function saveMovements() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(movements));
-            } catch (err) {
-                console.error('Error al guardar en localStorage:', err);
-                showToast('Error al guardar en el almacenamiento local.', 'error');
-            }
-        }
-
-        // -------------------------------------------------------------------------
-        // FORMATEO DE MONEDA (L. 000,000.00) Y MAYÚSCULAS
-        // -------------------------------------------------------------------------
-
-        /**
-         * Formatea un número al estándar L. 000,000.00
-         */
-        function formatCurrency(amount) {
-            const num = Number(amount) || 0;
-            const isNegative = num < 0;
-            const absNum = Math.abs(num);
-            const formatted = absNum.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-            return `${isNegative ? '-' : ''}L. ${formatted}`;
-        }
-
-        /**
-         * Formatea solo el número con comas y dos decimales (sin el prefijo L.)
-         */
-        function formatNumberInput(amount) {
-            const num = Number(amount) || 0;
-            return num.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-        }
-
-        /**
-         * Convierte una cadena formateada (ej: "12,500.50") a número flotante
-         */
-        function parseCurrencyInput(str) {
-            if (!str) return 0;
-            const cleaned = str.toString().replace(/[^0-9.]/g, '');
-            const val = parseFloat(cleaned);
-            return isNaN(val) ? 0 : Math.round(val * 100) / 100;
-        }
-
-        /**
-         * Configura listeners en los inputs del formulario
-         */
-        function setupFormInputs() {
-            // 1. Forzar mayúsculas en Observación mientras se escribe
-            const obsInput = document.getElementById('input-observacion');
-            obsInput.addEventListener('input', function () {
-                const start = this.selectionStart;
-                const end = this.selectionEnd;
-                this.value = this.value.toUpperCase();
-                this.setSelectionRange(start, end);
-            });
-
-            // 2. Formateo inteligente del campo Valor L.
-            const valorInput = document.getElementById('input-valor');
-            
-            valorInput.addEventListener('input', function () {
-                // Permitir solo dígitos y un punto decimal
-                let raw = this.value.replace(/[^0-9.]/g, '');
-                const parts = raw.split('.');
-                if (parts.length > 2) {
-                    raw = parts[0] + '.' + parts.slice(1).join('');
-                }
-                if (parts[1] && parts[1].length > 2) {
-                    raw = parts[0] + '.' + parts[1].substring(0, 2);
-                }
-
-                // Formatear parte entera con comas mientras escribe
-                const [intPart, decPart] = raw.split('.');
-                const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
-                this.value = decPart !== undefined ? `${formattedInt}.${decPart}` : formattedInt;
-            });
-
-            // Al salir del campo (blur), asegurar siempre los 2 decimales (.00)
-            valorInput.addEventListener('blur', function () {
-                const numericVal = parseCurrencyInput(this.value);
-                if (numericVal > 0) {
-                    this.value = formatNumberInput(numericVal);
-                } else {
-                    this.value = '';
-                }
-            });
-
-            // 3. Envío del formulario
-            document.getElementById('movement-form').addEventListener('submit', handleFormSubmit);
-        }
-
-        /**
-         * Configura listeners en los inputs del formulario de Inventario y Bienes
-         */
-        function setupAssetFormInputs() {
-            const descInput = document.getElementById('asset-descripcion');
-            if (descInput) {
-                descInput.addEventListener('input', function () {
-                    const start = this.selectionStart;
-                    const end = this.selectionEnd;
-                    this.value = this.value.toUpperCase();
-                    this.setSelectionRange(start, end);
-                });
-            }
-
-            const obsInput = document.getElementById('asset-observacion');
-            if (obsInput) {
-                obsInput.addEventListener('input', function () {
-                    const start = this.selectionStart;
-                    const end = this.selectionEnd;
-                    this.value = this.value.toUpperCase();
-                    this.setSelectionRange(start, end);
-                });
-            }
-
-            const valorInput = document.getElementById('asset-valor');
-            if (valorInput) {
-                valorInput.addEventListener('input', function () {
-                    let raw = this.value.replace(/[^0-9.]/g, '');
-                    const parts = raw.split('.');
-                    if (parts.length > 2) {
-                        raw = parts[0] + '.' + parts.slice(1).join('');
-                    }
-                    if (parts[1] && parts[1].length > 2) {
-                        raw = parts[0] + '.' + parts[1].substring(0, 2);
-                    }
-                    const [intPart, decPart] = raw.split('.');
-                    const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
-                    this.value = decPart !== undefined ? `${formattedInt}.${decPart}` : formattedInt;
-                });
-
-                valorInput.addEventListener('blur', function () {
-                    const numericVal = parseCurrencyInput(this.value);
-                    this.value = numericVal > 0 ? formatNumberInput(numericVal) : '';
-                });
-            }
-
-            const assetForm = document.getElementById('asset-form');
-            if (assetForm) {
-                assetForm.addEventListener('submit', handleAssetFormSubmit);
-            }
-        }
-
-        // -------------------------------------------------------------------------
-        // GESTIÓN DE MOVIMIENTOS (CREAR, EDITAR, ELIMINAR)
-        // -------------------------------------------------------------------------
-
-        function handleFormSubmit(e) {
-            e.preventDefault();
-
-            const editId = document.getElementById('edit-id').value.trim();
-            const fecha = document.getElementById('input-fecha').value;
-            const movimiento = document.getElementById('input-movimiento').value.toUpperCase();
-            const cuenta = document.getElementById('input-cuenta').value.toUpperCase();
-            const fondo = (document.getElementById('input-fondo').value || funds[0] || 'APORTACIONES').toUpperCase();
-            const valor = parseCurrencyInput(document.getElementById('input-valor').value);
-            const observacion = document.getElementById('input-observacion').value.trim().toUpperCase();
-
-            // Validaciones
-            if (!fecha) {
-                showToast('Por favor seleccione la fecha del movimiento.', 'error');
-                document.getElementById('input-fecha').focus();
-                return;
-            }
-            if (valor <= 0) {
-                showToast('El valor debe ser mayor a L. 0.00.', 'error');
-                document.getElementById('input-valor').focus();
-                return;
-            }
-            if (!observacion) {
-                showToast('Por favor ingrese una observación o detalle.', 'error');
-                document.getElementById('input-observacion').focus();
-                return;
-            }
-
-            if (editId) {
-                // Actualizar registro existente
-                const index = movements.findIndex(m => m.id === editId);
-                if (index !== -1) {
-                    movements[index] = {
-                        ...movements[index],
-                        fecha,
-                        movimiento,
-                        cuenta,
-                        fondo,
-                        valor,
-                        observacion,
-                        updatedAt: Date.now()
-                    };
-                    showToast('Movimiento actualizado correctamente.', 'success');
-                }
-                resetFormState();
-            } else {
-                // Crear nuevo registro
-                const newMovement = {
-                    id: 'MOV-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase(),
-                    fecha,
-                    movimiento,
-                    cuenta,
-                    fondo,
-                    valor,
-                    observacion,
-                    createdAt: Date.now()
-                };
-                movements.push(newMovement);
-                showToast('Movimiento registrado con éxito.', 'success');
-                
-                // Limpiar campos de valor y observación manteniendo fecha/selecciones cómodas
-                document.getElementById('input-valor').value = '';
-                document.getElementById('input-observacion').value = '';
-            }
-
-            saveMovements();
-            refreshAllViews();
-        }
-
-        /**
-         * Carga un movimiento en la Pestaña 2 para su edición
-         */
-        function editMovement(id) {
-            const mov = movements.find(m => m.id === id);
-            if (!mov) return;
-
-            const movFondo = (mov.fondo || 'APORTACIONES').toUpperCase();
-            if (movFondo !== 'NINGUNO' && !funds.includes(movFondo)) {
-                funds.push(movFondo);
-                saveFunds();
-            }
-            populateFundSelectors(movFondo);
-
-            document.getElementById('edit-id').value = mov.id;
-            document.getElementById('input-fecha').value = mov.fecha;
-            document.getElementById('input-movimiento').value = mov.movimiento;
-            document.getElementById('input-cuenta').value = mov.cuenta;
-            document.getElementById('input-fondo').value = movFondo;
-            updateFundImpactHint();
-            document.getElementById('input-valor').value = formatNumberInput(mov.valor);
-            document.getElementById('input-observacion').value = mov.observacion;
-
-            // Actualizar UI a modo edición
-            document.getElementById('form-title').textContent = 'Editar Movimiento Existente';
-            document.getElementById('form-subtitle').textContent = 'Modifique los campos necesarios y presione Actualizar Movimiento.';
-            document.getElementById('edit-mode-badge').classList.remove('hidden');
-            document.getElementById('btn-cancel-edit').classList.remove('hidden');
-            document.getElementById('btn-submit-text').textContent = 'Actualizar Movimiento';
-            document.getElementById('btn-submit-movement').classList.remove('bg-brand-600', 'hover:bg-brand-700');
-            document.getElementById('btn-submit-movement').classList.add('bg-amber-600', 'hover:bg-amber-700');
-
-            // Cambiar automáticamente a la 1ra pestaña
-            switchTab('nuevo');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        /**
-         * Cancela el modo edición y restaura el formulario
-         */
-        function cancelEdit() {
-            resetFormState();
-            showToast('Edición cancelada.', 'info');
-        }
-
-        /**
-         * Restaura el estado visual y valores por defecto del formulario
-         */
-        function resetFormState() {
-            document.getElementById('edit-id').value = '';
-            setTodayDate();
-            document.getElementById('input-movimiento').value = 'INGRESO';
-            document.getElementById('input-cuenta').value = 'CAJA CHICA';
-            if (funds.length > 0) {
-                document.getElementById('input-fondo').value = funds[0];
-            }
-            updateFundImpactHint();
-            document.getElementById('input-valor').value = '';
-            document.getElementById('input-observacion').value = '';
-
-            document.getElementById('form-title').textContent = 'Nuevo Movimiento';
-            document.getElementById('form-subtitle').textContent = '';
-            document.getElementById('edit-mode-badge').classList.add('hidden');
-            document.getElementById('btn-cancel-edit').classList.add('hidden');
-            document.getElementById('btn-submit-text').textContent = 'Guardar Movimiento';
-            document.getElementById('btn-submit-movement').classList.remove('bg-amber-600', 'hover:bg-amber-700');
-            document.getElementById('btn-submit-movement').classList.add('bg-brand-600', 'hover:bg-brand-700');
-        }
-
-        /**
-         * Solicita confirmación y elimina un movimiento
-         */
-        function deleteMovement(id) {
-            const mov = movements.find(m => m.id === id);
-            if (!mov) return;
-
-            openConfirmModal(
-                'Eliminar Movimiento',
-                `¿Está seguro de eliminar este ${mov.movimiento} de ${mov.cuenta} por ${formatCurrency(mov.valor)} con fecha ${formatDateDisplay(mov.fecha)}? Esta acción recalculará los saldos.`,
-                () => {
-                    movements = movements.filter(m => m.id !== id);
-                    // Si se estaba editando justo ese movimiento, resetear formulario
-                    if (document.getElementById('edit-id').value === id) {
-                        resetFormState();
-                    }
-                    saveMovements();
-                    refreshAllViews();
-                    showToast('Movimiento eliminado correctamente.', 'success');
-                }
-            );
-        }
-
-        // -------------------------------------------------------------------------
-        // ACTUALIZACIÓN DE SALDOS Y VISTAS
-        // -------------------------------------------------------------------------
-
-        function refreshAllViews() {
-            renderDashboard();
-            document.getElementById('badge-count').textContent = movements.length;
-            const badgeAssets = document.getElementById('badge-assets-count');
-            if (badgeAssets) badgeAssets.textContent = assets.length;
-            renderHistory();
-            populateYearSelector();
-            renderSummary();
-            renderAssets();
-        }
-
-        /**
-         * Calcula y actualiza todo el contenido de la Pestaña 1: Dashboard
-         */
-        function renderDashboard() {
-            let saldoCajaLibre = 0;
-            let saldoBancoLibre = 0;
-            let saldoTotalFondos = 0;
-
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            const currentMonthIdx = now.getMonth();
-
-            let monthIngresos = 0;
-            let monthEgresos = 0;
-
-            movements.forEach(m => {
-                const factor = m.movimiento === 'INGRESO' ? 1 : -1;
-                const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
-
-                if (movFondo === 'NINGUNO') {
-                    // Efectivo libre en Caja Chica o Banco
-                    if (m.cuenta === 'CAJA CHICA') {
-                        saldoCajaLibre += m.valor * factor;
-                    } else if (m.cuenta === 'BANCO') {
-                        saldoBancoLibre += m.valor * factor;
-                    }
-                } else {
-                    // Saldo independiente del Fondo asignado
-                    saldoTotalFondos += m.valor * factor;
-                }
-
-                // Verificar si pertenece al mes y año actual
-                if (m.fecha) {
-                    const [yStr, mStr] = m.fecha.split('-');
-                    const movYear = parseInt(yStr, 10);
-                    const movMonth = parseInt(mStr, 10) - 1;
-                    if (movYear === currentYear && movMonth === currentMonthIdx) {
-                        if (m.movimiento === 'INGRESO') {
-                            monthIngresos += m.valor;
-                        } else {
-                            monthEgresos += m.valor;
-                        }
-                    }
-                }
-            });
-
-            const saldoTotal = saldoCajaLibre + saldoBancoLibre + saldoTotalFondos;
-
-            // 1. Actualizar tarjetas principales
-            document.getElementById('card-saldo-caja').textContent = formatCurrency(saldoCajaLibre);
-            document.getElementById('card-saldo-banco').textContent = formatCurrency(saldoBancoLibre);
-            document.getElementById('card-saldo-total').textContent = formatCurrency(saldoTotal);
-
-            // 1.5 Actualizar tarjetas de Disponibilidad por Fondo
-            renderDashboardFunds();
-
-            // 2. Actualizar resumen del mes actual
-            document.getElementById('dash-current-month-label').textContent = `${MONTH_NAMES[currentMonthIdx]} ${currentYear}`;
-            document.getElementById('dash-month-ingresos').textContent = formatCurrency(monthIngresos);
-            document.getElementById('dash-month-egresos').textContent = formatCurrency(monthEgresos);
-
-            const monthBalance = monthIngresos - monthEgresos;
-            const balanceEl = document.getElementById('dash-month-balance');
-            balanceEl.textContent = formatCurrency(monthBalance);
-            balanceEl.className = `text-lg font-extrabold ${monthBalance < 0 ? 'text-rose-600' : monthBalance > 0 ? 'text-emerald-700' : 'text-slate-900'}`;
-
-            // Barras proporcionales visuales
-            const maxFlow = Math.max(monthIngresos, monthEgresos, 1);
-            const ingPct = monthIngresos > 0 ? Math.max(6, Math.round((monthIngresos / maxFlow) * 100)) : 0;
-            const egrPct = monthEgresos > 0 ? Math.max(6, Math.round((monthEgresos / maxFlow) * 100)) : 0;
-            document.getElementById('dash-bar-ingresos').style.width = `${ingPct}%`;
-            document.getElementById('dash-bar-egresos').style.width = `${egrPct}%`;
-
-            // 3. Actualizar tabla rápida de los últimos 5 movimientos
-            document.getElementById('dash-total-ops').textContent = movements.length;
-            const recentBody = document.getElementById('dash-recent-body');
-            const recentEmpty = document.getElementById('dash-recent-empty');
-
-            const sortedRecent = [...movements].sort((a, b) => {
-                if (a.fecha !== b.fecha) {
-                    return b.fecha.localeCompare(a.fecha);
-                }
+        function getFilteredHistoryMovements() {
+            const cuentaFilter = document.getElementById('filter-cuenta')?.value || 'TODAS';
+            const fondoFilter = document.getElementById('filter-fondo')?.value || 'TODOS';
+            const tipoFilter = document.getElementById('filter-tipo')?.value || 'TODOS';
+
+            const sorted = [...movements].sort((a, b) => {
+                if (a.fecha !== b.fecha) return b.fecha.localeCompare(a.fecha);
                 return (b.createdAt || 0) - (a.createdAt || 0);
-            }).slice(0, 5);
-
-            recentBody.innerHTML = '';
-
-            if (sortedRecent.length === 0) {
-                recentEmpty.classList.remove('hidden');
-            } else {
-                recentEmpty.classList.add('hidden');
-                sortedRecent.forEach(m => {
-                    const isIngreso = m.movimiento === 'INGRESO';
-                    const amountColor = isIngreso ? 'text-emerald-700' : 'text-rose-700';
-                    const cuentaBadge = m.cuenta === 'CAJA CHICA'
-                        ? 'bg-amber-50 text-amber-800 border-amber-200'
-                        : 'bg-sky-50 text-sky-800 border-sky-200';
-
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-slate-50/90 transition-colors';
-                    const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
-                    tr.innerHTML = `
-                        <td class="py-3 px-4 whitespace-nowrap font-semibold text-slate-600 text-xs">
-                            ${formatDateDisplay(m.fecha)}
-                        </td>
-                        <td class="py-3 px-4 whitespace-nowrap">
-                            <div class="flex flex-col gap-1 items-start">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${cuentaBadge}">
-                                    ${m.cuenta}
-                                </span>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold ${movFondo === 'NINGUNO' ? 'bg-slate-100 text-slate-600 border-slate-300' : 'bg-indigo-50 text-indigo-800 border-indigo-200'}">
-                                    ${movFondo === 'NINGUNO' ? 'SIN FONDO (NINGUNO)' : escapeHTML(movFondo)}
-                                </span>
-                            </div>
-                        </td>
-                        <td class="py-3 px-4 font-medium text-slate-700 max-w-[180px] sm:max-w-[240px] truncate" title="${escapeHTML(m.observacion)}">
-                            ${escapeHTML(m.observacion)}
-                        </td>
-                        <td class="py-3 px-4 whitespace-nowrap text-right font-extrabold text-xs sm:text-sm ${amountColor}">
-                            ${isIngreso ? '+' : '-'} ${formatCurrency(m.valor)}
-                        </td>
-                    `;
-                    recentBody.appendChild(tr);
-                });
-            }
-        }
-
-        /**
-         * Renderiza las tarjetas compactas de cada Fondo/Proyecto dentro del panel ejecutivo del Dashboard
-         */
-        function renderDashboardFunds() {
-            const container = document.getElementById('dash-funds-inline-cards');
-            if (!container) return;
-
-            const balances = {};
-            funds.forEach(f => { balances[f] = 0; });
-
-            movements.forEach(m => {
-                const f = (m.fondo || 'APORTACIONES').toUpperCase();
-                if (f === 'NINGUNO') return;
-                const factor = m.movimiento === 'INGRESO' ? 1 : -1;
-                if (balances[f] === undefined) balances[f] = 0;
-                balances[f] += m.valor * factor;
             });
 
-            container.innerHTML = '';
-            Object.keys(balances).forEach(fundName => {
-                const val = balances[fundName];
-                const isNegative = val < 0;
-                const card = document.createElement('div');
-                card.className = 'bg-indigo-950/50 backdrop-blur-md border border-indigo-400/25 rounded-xl p-3.5 flex items-center justify-between';
-                card.innerHTML = `
-                    <div class="min-w-0 pr-2">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-200 block truncate" title="${escapeHTML(fundName)}">
-                            ${escapeHTML(fundName)}
-                        </span>
-                        <span class="text-lg sm:text-xl font-extrabold tracking-tight block mt-0.5 ${isNegative ? 'text-rose-300' : 'text-white'}">
-                            ${formatCurrency(val)}
-                        </span>
-                    </div>
-                    <div class="w-9 h-9 rounded-lg bg-indigo-500/25 border border-indigo-400/30 flex items-center justify-center text-indigo-200 shrink-0">
-                        <i class="ph-duotone ph-folder-open text-lg"></i>
-                    </div>
-                `;
-                container.appendChild(card);
+            return sorted.filter(m => {
+                const mFondo = (m.fondo || 'APORTACIONES').toUpperCase();
+                if (cuentaFilter !== 'TODAS' && m.cuenta !== cuentaFilter) return false;
+                if (fondoFilter !== 'TODOS' && mFondo !== fondoFilter) return false;
+                if (tipoFilter !== 'TODOS' && m.movimiento !== tipoFilter) return false;
+                return true;
             });
-        }
-
-        /**
-         * Rellena el selector de años disponibles en la Pestaña 4 (Resúmenes Mensuales)
-         */
-        function populateYearSelector() {
-            const select = document.getElementById('summary-year');
-            if (!select) return;
-            const currentYear = new Date().getFullYear();
-            const previousSelected = select.value ? parseInt(select.value, 10) : currentYear;
-
-            const yearsSet = new Set([currentYear]);
-            movements.forEach(m => {
-                if (m.fecha) {
-                    const y = parseInt(m.fecha.split('-')[0], 10);
-                    if (!isNaN(y)) yearsSet.add(y);
-                }
-            });
-
-            const sortedYears = Array.from(yearsSet).sort((a, b) => b - a);
-            select.innerHTML = sortedYears
-                .map(y => `<option value="${y}" ${y === previousSelected ? 'selected' : ''}>${y}</option>`)
-                .join('');
-        }
-
-        /**
-         * Calcula la estructura de datos mensual de Enero a Diciembre para el año dado
-         */
-        function calculateYearlySummaryData(year) {
-            // Calcular saldo inicial arrastrado de años anteriores al año seleccionado
-            let runningCaja = 0;
-            let runningBanco = 0;
-            let runningFondos = 0;
-
-            movements.forEach(m => {
-                const movYear = parseInt(m.fecha.split('-')[0], 10);
-                if (movYear < year) {
-                    const factor = m.movimiento === 'INGRESO' ? 1 : -1;
-                    const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
-                    if (movFondo === 'NINGUNO') {
-                        if (m.cuenta === 'CAJA CHICA') runningCaja += m.valor * factor;
-                        if (m.cuenta === 'BANCO') runningBanco += m.valor * factor;
-                    } else {
-                        runningFondos += m.valor * factor;
-                    }
-                }
-            });
-
-            const rows = [];
-            let totalIngCaja = 0;
-            let totalEgrCaja = 0;
-            let totalIngBanco = 0;
-            let totalEgrBanco = 0;
-
-            for (let monthIdx = 0; monthIdx < 12; monthIdx++) {
-                let ingCaja = 0;
-                let egrCaja = 0;
-                let ingBanco = 0;
-                let egrBanco = 0;
-                let netoFondosMes = 0;
-
-                movements.forEach(m => {
-                    const [yStr, mStr] = m.fecha.split('-');
-                    const movYear = parseInt(yStr, 10);
-                    const movMonth = parseInt(mStr, 10) - 1;
-                    const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
-
-                    if (movYear === year && movMonth === monthIdx) {
-                        if (movFondo === 'NINGUNO') {
-                            if (m.cuenta === 'CAJA CHICA') {
-                                if (m.movimiento === 'INGRESO') ingCaja += m.valor;
-                                else egrCaja += m.valor;
-                            } else if (m.cuenta === 'BANCO') {
-                                if (m.movimiento === 'INGRESO') ingBanco += m.valor;
-                                else egrBanco += m.valor;
-                            }
-                        } else {
-                            netoFondosMes += (m.movimiento === 'INGRESO' ? m.valor : -m.valor);
-                        }
-                    }
-                });
-
-                // Actualizar saldos acumulados independientes al cierre del mes
-                runningCaja += (ingCaja - egrCaja);
-                runningBanco += (ingBanco - egrBanco);
-                runningFondos += netoFondosMes;
-                const saldoConsolidado = runningCaja + runningBanco + runningFondos;
-
-                totalIngCaja += ingCaja;
-                totalEgrCaja += egrCaja;
-                totalIngBanco += ingBanco;
-                totalEgrBanco += egrBanco;
-
-                rows.push({
-                    monthName: MONTH_NAMES[monthIdx],
-                    ingCaja,
-                    egrCaja,
-                    saldoCaja: runningCaja,
-                    ingBanco,
-                    egrBanco,
-                    saldoBanco: runningBanco,
-                    saldoConsolidado
-                });
-            }
-
-            return {
-                year,
-                rows,
-                totals: {
-                    totalIngCaja,
-                    totalEgrCaja,
-                    finalSaldoCaja: runningCaja,
-                    totalIngBanco,
-                    totalEgrBanco,
-                    finalSaldoBanco: runningBanco,
-                    finalSaldoConsolidado: runningCaja + runningBanco + runningFondos
-                }
-            };
-        }
-
-        /**
-         * Renderiza la tabla de resumen de Enero a Diciembre (Pestaña 3)
-         */
-        function renderSummary() {
-            const year = parseInt(document.getElementById('summary-year').value, 10) || new Date().getFullYear();
-            const data = calculateYearlySummaryData(year);
-
-            const tbody = document.getElementById('summary-table-body');
-            const tfoot = document.getElementById('summary-table-foot');
-
-            tbody.innerHTML = '';
-
-            data.rows.forEach((r, idx) => {
-                const hasActivity = r.ingCaja > 0 || r.egrCaja > 0 || r.ingBanco > 0 || r.egrBanco > 0;
-                const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
-
-                const tr = document.createElement('tr');
-                tr.className = `${rowBg} hover:bg-brand-50/40 transition-colors`;
-                tr.innerHTML = `
-                    <td class="py-3 px-4 font-bold text-slate-800 border-r border-slate-200">
-                        ${r.monthName}
-                    </td>
-                    <td class="py-3 px-3 text-right font-medium ${r.ingCaja > 0 ? 'text-emerald-700' : 'text-slate-400'}">
-                        ${formatCurrency(r.ingCaja)}
-                    </td>
-                    <td class="py-3 px-3 text-right font-medium ${r.egrCaja > 0 ? 'text-rose-700' : 'text-slate-400'}">
-                        ${formatCurrency(r.egrCaja)}
-                    </td>
-                    <td class="py-3 px-3 text-right font-bold border-r border-slate-200 bg-amber-50/40 ${r.saldoCaja < 0 ? 'text-rose-700' : 'text-slate-900'}">
-                        ${formatCurrency(r.saldoCaja)}
-                    </td>
-                    <td class="py-3 px-3 text-right font-medium ${r.ingBanco > 0 ? 'text-emerald-700' : 'text-slate-400'}">
-                        ${formatCurrency(r.ingBanco)}
-                    </td>
-                    <td class="py-3 px-3 text-right font-medium ${r.egrBanco > 0 ? 'text-rose-700' : 'text-slate-400'}">
-                        ${formatCurrency(r.egrBanco)}
-                    </td>
-                    <td class="py-3 px-3 text-right font-bold border-r border-slate-200 bg-sky-50/40 ${r.saldoBanco < 0 ? 'text-rose-700' : 'text-slate-900'}">
-                        ${formatCurrency(r.saldoBanco)}
-                    </td>
-                    <td class="py-3 px-4 text-right font-extrabold bg-emerald-50/40 ${r.saldoConsolidado < 0 ? 'text-rose-700' : 'text-emerald-900'}">
-                        ${formatCurrency(r.saldoConsolidado)}
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            const t = data.totals;
-            tfoot.innerHTML = `
-                <tr>
-                    <td class="py-3.5 px-4 border-r border-slate-300">TOTAL / CIERRE ${year}</td>
-                    <td class="py-3.5 px-3 text-right text-emerald-700">${formatCurrency(t.totalIngCaja)}</td>
-                    <td class="py-3.5 px-3 text-right text-rose-700">${formatCurrency(t.totalEgrCaja)}</td>
-                    <td class="py-3.5 px-3 text-right border-r border-slate-300 bg-amber-100/60">${formatCurrency(t.finalSaldoCaja)}</td>
-                    <td class="py-3.5 px-3 text-right text-emerald-700">${formatCurrency(t.totalIngBanco)}</td>
-                    <td class="py-3.5 px-3 text-right text-rose-700">${formatCurrency(t.totalEgrBanco)}</td>
-                    <td class="py-3.5 px-3 text-right border-r border-slate-300 bg-sky-100/60">${formatCurrency(t.finalSaldoBanco)}</td>
-                    <td class="py-3.5 px-4 text-right bg-emerald-100/70 text-emerald-950">${formatCurrency(t.finalSaldoConsolidado)}</td>
-                </tr>
-            `;
-
-            // Renderizar tabla complementaria de Resumen Anual por Fondo
-            renderSummaryFunds(year);
-        }
-
-        /**
-         * Formatea fecha YYYY-MM-DD a DD/MM/YYYY
-         */
-        function formatDateDisplay(isoDate) {
-            if (!isoDate) return '';
-            const parts = isoDate.split('-');
-            if (parts.length !== 3) return isoDate;
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
         }
 
         /**
@@ -1932,24 +969,7 @@
             const emptyState = document.getElementById('history-empty-state');
             if (!tbody || !emptyState) return;
 
-            const search = (document.getElementById('filter-search')?.value || '').trim().toUpperCase();
-            const cuentaFilter = document.getElementById('filter-cuenta')?.value || 'TODAS';
-            const fondoFilter = document.getElementById('filter-fondo')?.value || 'TODOS';
-            const tipoFilter = document.getElementById('filter-tipo')?.value || 'TODOS';
-
-            const sorted = [...movements].sort((a, b) => {
-                if (a.fecha !== b.fecha) return b.fecha.localeCompare(a.fecha);
-                return (b.createdAt || 0) - (a.createdAt || 0);
-            });
-
-            const filtered = sorted.filter(m => {
-                const mFondo = (m.fondo || 'APORTACIONES').toUpperCase();
-                if (cuentaFilter !== 'TODAS' && m.cuenta !== cuentaFilter) return false;
-                if (fondoFilter !== 'TODOS' && mFondo !== fondoFilter) return false;
-                if (tipoFilter !== 'TODOS' && m.movimiento !== tipoFilter) return false;
-                if (search && !(m.observacion || '').toUpperCase().includes(search)) return false;
-                return true;
-            });
+            const filtered = getFilteredHistoryMovements();
 
             tbody.innerHTML = '';
 
@@ -2018,80 +1038,34 @@
         }
 
         /**
-         * Calcula y renderiza el desglose anual por Fondo / Asignación
+         * Exporta el Historial de Movimientos (según los filtros activos) a PDF en la carpeta de descargas
          */
-        function calculateYearlyFundsData(year) {
-            const allFundNames = Array.from(new Set([
-                ...funds,
-                ...movements.map(m => (m.fondo || 'APORTACIONES').toUpperCase()).filter(f => f !== 'NINGUNO')
-            ]));
-
-            return allFundNames.map(fundName => {
-                let inicial = 0;
-                let ingresosAnio = 0;
-                let egresosAnio = 0;
-
-                movements.forEach(m => {
-                    const mFund = (m.fondo || 'APORTACIONES').toUpperCase();
-                    if (mFund !== fundName) return;
-                    const movYear = parseInt(m.fecha.split('-')[0], 10);
-                    const factor = m.movimiento === 'INGRESO' ? 1 : -1;
-
-                    if (movYear < year) {
-                        inicial += m.valor * factor;
-                    } else if (movYear === year) {
-                        if (m.movimiento === 'INGRESO') ingresosAnio += m.valor;
-                        else egresosAnio += m.valor;
-                    }
-                });
-
-                return {
-                    fundName,
-                    inicial,
-                    ingresosAnio,
-                    egresosAnio,
-                    saldoFinal: inicial + ingresosAnio - egresosAnio
-                };
-            });
-        }
-
-        function renderSummaryFunds(year) {
-            const yearLabel = document.getElementById('summary-fund-year-label');
-            const tbody = document.getElementById('summary-funds-body');
-            if (!tbody) return;
-            if (yearLabel) yearLabel.textContent = year;
-
-            const fundRows = calculateYearlyFundsData(year);
-            tbody.innerHTML = '';
-
-            fundRows.forEach(fr => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50 transition-colors';
-                tr.innerHTML = `
-                    <td class="py-3 px-4 font-extrabold text-indigo-900">${escapeHTML(fr.fundName)}</td>
-                    <td class="py-3 px-4 text-right font-medium text-slate-600">${formatCurrency(fr.inicial)}</td>
-                    <td class="py-3 px-4 text-right font-semibold text-emerald-700">${formatCurrency(fr.ingresosAnio)}</td>
-                    <td class="py-3 px-4 text-right font-semibold text-rose-700">${formatCurrency(fr.egresosAnio)}</td>
-                    <td class="py-3 px-4 text-right font-extrabold bg-indigo-50/50 ${fr.saldoFinal < 0 ? 'text-rose-700' : 'text-indigo-950'}">${formatCurrency(fr.saldoFinal)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        /**
-         * Exporta el Resumen Mensual (Caja, Bancos y Fondos) a PDF
-         */
-        async function exportSummaryToPDF() {
+        function exportHistoryToPDF() {
             try {
-                const year = parseInt(document.getElementById('summary-year').value, 10) || new Date().getFullYear();
-                const data = calculateYearlySummaryData(year);
-                const fundData = calculateYearlyFundsData(year);
+                const filtered = getFilteredHistoryMovements();
+                if (filtered.length === 0) {
+                    showToast('No hay movimientos para exportar con los filtros actuales.', 'info');
+                    return;
+                }
+
+                const cuentaFilter = document.getElementById('filter-cuenta')?.value || 'TODAS';
+                const fondoFilter = document.getElementById('filter-fondo')?.value || 'TODOS';
+                const tipoFilter = document.getElementById('filter-tipo')?.value || 'TODOS';
 
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter' });
 
                 const now = new Date();
                 const fechaGen = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+                const todayISO = now.toISOString().split('T')[0];
+
+                let totalIngresos = 0;
+                let totalEgresos = 0;
+                filtered.forEach(m => {
+                    if (m.movimiento === 'INGRESO') totalIngresos += m.valor;
+                    else totalEgresos += m.valor;
+                });
+                const balanceNeto = totalIngresos - totalEgresos;
 
                 doc.setFillColor(12, 74, 110);
                 doc.rect(0, 0, 280, 26, 'F');
@@ -2101,111 +1075,53 @@
                 doc.text('FINANZAS FDPO', 14, 12);
                 doc.setFont('helvetica', 'normal');
                 doc.setFontSize(10);
-                doc.text(`RESUMEN ANUAL DE CAJA CHICA, BANCOS Y FONDOS — AÑO ${year}`, 14, 19);
+                doc.text('REPORTE DETALLADO DE HISTORIAL DE MOVIMIENTOS', 14, 19);
                 doc.setFontSize(9);
                 doc.text(`Fecha de Emisión: ${fechaGen}`, 265, 12, { align: 'right' });
-                doc.text('Moneda: Lempiras (L.)', 265, 19, { align: 'right' });
+                doc.text(`Filtros: Cuenta (${cuentaFilter}) | Fondo (${fondoFilter}) | Tipo (${tipoFilter})`, 265, 19, { align: 'right' });
 
-                const body = data.rows.map(r => [
-                    r.monthName,
-                    formatCurrency(r.ingCaja),
-                    formatCurrency(r.egrCaja),
-                    formatCurrency(r.saldoCaja),
-                    formatCurrency(r.ingBanco),
-                    formatCurrency(r.egrBanco),
-                    formatCurrency(r.saldoBanco),
-                    formatCurrency(r.saldoConsolidado)
-                ]);
-
-                const t = data.totals;
-                body.push([
-                    `CIERRE ${year}`,
-                    formatCurrency(t.totalIngCaja),
-                    formatCurrency(t.totalEgrCaja),
-                    formatCurrency(t.finalSaldoCaja),
-                    formatCurrency(t.totalIngBanco),
-                    formatCurrency(t.totalEgrBanco),
-                    formatCurrency(t.finalSaldoBanco),
-                    formatCurrency(t.finalSaldoConsolidado)
-                ]);
-
-                doc.autoTable({
-                    startY: 31,
-                    head: [[
-                        'MES',
-                        'ING. CAJA', 'EGR. CAJA', 'SALDO CAJA',
-                        'ING. BANCO', 'EGR. BANCO', 'SALDO BANCO',
-                        'SALDO CONSOLIDADO'
-                    ]],
-                    body: body,
-                    theme: 'grid',
-                    styles: { font: 'helvetica', fontSize: 7.5, cellPadding: 2 },
-                    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
-                    columnStyles: {
-                        0: { fontStyle: 'bold' },
-                        1: { halign: 'right' },
-                        2: { halign: 'right' },
-                        3: { halign: 'right', fontStyle: 'bold' },
-                        4: { halign: 'right' },
-                        5: { halign: 'right' },
-                        6: { halign: 'right', fontStyle: 'bold' },
-                        7: { halign: 'right', fontStyle: 'bold' }
-                    }
-                });
-
-                // Tabla de Saldos por Fondo en el mismo PDF
-                const nextY = doc.lastAutoTable.finalY + 8;
                 doc.setTextColor(30, 41, 59);
                 doc.setFont('helvetica', 'bold');
-                doc.setFontSize(10);
-                doc.text(`DESGLOSE DE SALDOS POR FONDO / ASIGNACIÓN (${year})`, 14, nextY);
+                doc.setFontSize(9);
+                doc.text(`TOTAL INGRESOS: ${formatCurrency(totalIngresos)}`, 14, 34);
+                doc.text(`TOTAL EGRESOS: ${formatCurrency(totalEgresos)}`, 95, 34);
+                doc.text(`BALANCE NETO FILTRADO: ${formatCurrency(balanceNeto)}`, 175, 34);
+
+                const body = filtered.map(m => {
+                    const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
+                    return [
+                        formatDateDisplay(m.fecha),
+                        m.movimiento,
+                        m.cuenta,
+                        movFondo === 'NINGUNO' ? 'NINGUNO (LIBRE)' : movFondo,
+                        `${m.movimiento === 'INGRESO' ? '+' : '-'} ${formatCurrency(m.valor)}`,
+                        m.observacion
+                    ];
+                });
 
                 doc.autoTable({
-                    startY: nextY + 3,
-                    head: [['FONDO / ASIGNACIÓN', 'SALDO INICIAL', 'INGRESOS AÑO', 'EGRESOS AÑO', 'SALDO DISPONIBLE']],
-                    body: fundData.map(f => [
-                        f.fundName,
-                        formatCurrency(f.inicial),
-                        formatCurrency(f.ingresosAnio),
-                        formatCurrency(f.egresosAnio),
-                        formatCurrency(f.saldoFinal)
-                    ]),
+                    startY: 39,
+                    head: [['FECHA', 'MOVIMIENTO', 'CUENTA', 'FONDO / ASIGNACIÓN', 'VALOR (L.)', 'OBSERVACIÓN / DETALLE']],
+                    body: body,
                     theme: 'grid',
-                    styles: { font: 'helvetica', fontSize: 8, cellPadding: 2.2 },
-                    headStyles: { fillColor: [49, 46, 129], textColor: [255, 255, 255], fontStyle: 'bold' },
+                    styles: { font: 'helvetica', fontSize: 8, cellPadding: 2.5, overflow: 'linebreak' },
+                    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
                     columnStyles: {
-                        0: { fontStyle: 'bold' },
-                        1: { halign: 'right' },
-                        2: { halign: 'right' },
-                        3: { halign: 'right' },
-                        4: { halign: 'right', fontStyle: 'bold' }
+                        0: { cellWidth: 24 },
+                        1: { cellWidth: 24, fontStyle: 'bold' },
+                        2: { cellWidth: 28 },
+                        3: { cellWidth: 38 },
+                        4: { cellWidth: 32, halign: 'right', fontStyle: 'bold' },
+                        5: { cellWidth: 'auto' }
                     }
                 });
 
-                const fileName = `Finanzas_FDPO_Resumen_${year}.pdf`;
-                const pdfBlob = doc.output('blob');
-
-                if (window.showSaveFilePicker) {
-                    try {
-                        const fileHandle = await window.showSaveFilePicker({
-                            suggestedName: fileName,
-                            types: [{ description: 'Documento PDF', accept: { 'application/pdf': ['.pdf'] } }]
-                        });
-                        const writable = await fileHandle.createWritable();
-                        await writable.write(pdfBlob);
-                        await writable.close();
-                        showToast('Resumen PDF guardado en la carpeta seleccionada.', 'success');
-                        return;
-                    } catch (pickerErr) {
-                        if (pickerErr.name === 'AbortError') return;
-                    }
-                }
-
+                const fileName = `Finanzas_FDPO_Historial_Movimientos_${todayISO}.pdf`;
                 doc.save(fileName);
-                showToast('Resumen PDF descargado correctamente.', 'success');
+                showToast('Reporte PDF guardado en su carpeta de Descargas.', 'success');
             } catch (err) {
                 console.error(err);
-                showToast('Error al generar el PDF.', 'error');
+                showToast('Error al generar el reporte PDF de movimientos.', 'error');
             }
         }
 
