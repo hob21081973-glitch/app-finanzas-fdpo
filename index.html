@@ -113,27 +113,27 @@
 
         <!-- ===================================================================== -->
         <!-- PESTAÑA 1: DASHBOARD (PANEL PRINCIPAL DE ENTRADA)                     -->
-                    <!-- Filtros Discretos y Exportación PDF -->
-                    <div class="flex flex-wrap items-center gap-2.5">
-                        <select id="filter-cuenta" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <option value="TODAS">CUENTA: TODAS</option>
-                            <option value="CAJA CHICA">CAJA CHICA</option>
-                            <option value="BANCO">BANCO</option>
-                        </select>
+        <!-- ===================================================================== -->
+        <section id="panel-dashboard" class="tab-panel space-y-6">
 
-                        <select id="filter-fondo" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <option value="TODOS">FONDO: TODOS</option>
-                        </select>
-
-                        <select id="filter-tipo" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <option value="TODOS">TIPO: TODOS</option>
-                            <option value="INGRESO">INGRESOS</option>
-                            <option value="EGRESO">EGRESOS</option>
-                        </select>
-
-                        <button onclick="exportHistoryToPDF()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-sm shadow-rose-600/20 transition-all">
-                            <i class="ph-bold ph-file-pdf text-base"></i>
-                            <span>Generar Reporte PDF</span>
+            <!-- Panel Ejecutivo Unificado de Saldos -->
+            <div class="bg-gradient-to-br from-slate-900 via-brand-900 to-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-lg border border-brand-800/50 space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                            <i class="ph-duotone ph-chart-pie-slice text-brand-300 text-2xl"></i>
+                            <span>Resumen Ejecutivo de Saldos</span>
+                        </h2>
+                        <p class="text-xs text-brand-200 mt-0.5">Efectivo libre (Caja/Banco) y disponibilidad independiente por fondo asignado.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="openFundModal('create')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-colors">
+                            <i class="ph-bold ph-folder-plus text-sm text-emerald-300"></i>
+                            <span>+ Nuevo Fondo</span>
+                        </button>
+                        <button onclick="switchTab('nuevo')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-brand-500 hover:bg-brand-400 text-white shadow-sm transition-colors">
+                            <i class="ph-bold ph-plus-circle text-base"></i>
+                            <span>Registrar Nuevo Movimiento</span>
                         </button>
                     </div>
                 </div>
@@ -216,27 +216,27 @@
                                 <div class="flex items-center justify-between text-xs font-bold text-rose-800 mb-1.5">
                                     <span class="flex items-center gap-1.5">
                                         <i class="ph-bold ph-arrow-up-right text-rose-600"></i>
-                                        EGRESOS DEL MES
-                                    </span>
-                                    <span id="dash-month-egresos" class="text-sm font-extrabold">L. 0.00</span>
-                                </div>
-                                <div class="w-full bg-rose-200/60 rounded-full h-2 overflow-hidden">
-                                    <div id="dash-bar-egresos" class="bg-rose-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
-                                </div>
-                            </div>
+                    <!-- Filtros Discretos y Exportación PDF -->
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <select id="filter-cuenta" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="TODAS">CUENTA: TODAS</option>
+                            <option value="CAJA CHICA">CAJA CHICA</option>
+                            <option value="BANCO">BANCO</option>
+                        </select>
 
-                            <!-- Balance Neto del Mes -->
-                            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
-                                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Balance Neto del Mes:</span>
-                                <span id="dash-month-balance" class="text-lg font-extrabold text-slate-900">L. 0.00</span>
-                            </div>
-                        </div>
-                    </div>
+                        <select id="filter-fondo" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="TODOS">FONDO: TODOS</option>
+                        </select>
 
-                    <div class="mt-6 pt-4 border-t border-slate-100">
-                        <button onclick="switchTab('resumen')" class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200/60 transition-colors flex items-center justify-center gap-1.5">
-                            <span>Ver Reporte Anual Enero – Diciembre</span>
-                            <i class="ph-bold ph-arrow-right"></i>
+                        <select id="filter-tipo" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="TODOS">TIPO: TODOS</option>
+                            <option value="INGRESO">INGRESOS</option>
+                            <option value="EGRESO">EGRESOS</option>
+                        </select>
+
+                        <button onclick="exportHistoryToPDF()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-sm shadow-rose-600/20 transition-all">
+                            <i class="ph-bold ph-file-pdf text-base"></i>
+                            <span>Generar Reporte PDF</span>
                         </button>
                     </div>
                 </div>
@@ -938,6 +938,849 @@
             // Renderizar vistas iniciales
             refreshAllViews();
         });
+
+        // -------------------------------------------------------------------------
+        // NAVEGACIÓN POR PESTAÑAS
+        // -------------------------------------------------------------------------
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white', 'shadow-sm', 'font-bold');
+                btn.classList.add('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
+            });
+
+            const activePanel = document.getElementById(`panel-${tabName}`);
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+
+            if (activePanel) activePanel.classList.remove('hidden');
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'font-semibold');
+                activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-sm', 'font-bold');
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // PERSISTENCIA EN LOCALSTORAGE
+        // -------------------------------------------------------------------------
+        function loadFunds() {
+            try {
+                const raw = localStorage.getItem(FUNDS_STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        funds = Array.from(new Set(parsed.map(f => String(f).trim().toUpperCase()).filter(f => f && f !== 'NINGUNO')));
+                    }
+                }
+            } catch (e) {
+                console.error('Error cargando fondos:', e);
+            }
+        }
+
+        function saveFunds() {
+            localStorage.setItem(FUNDS_STORAGE_KEY, JSON.stringify(funds));
+        }
+
+        function loadMovements() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) {
+                        movements = parsed.map(m => ({
+                            ...m,
+                            fondo: (m.fondo || 'APORTACIONES').toUpperCase(),
+                            valor: Number(m.valor) || 0
+                        }));
+                    }
+                }
+            } catch (e) {
+                console.error('Error cargando movimientos:', e);
+            }
+        }
+
+        function saveMovements() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(movements));
+        }
+
+        function loadAssets() {
+            try {
+                const raw = localStorage.getItem(ASSETS_STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) {
+                        assets = parsed.map(a => ({
+                            ...a,
+                            valor: Number(a.valor) || 0,
+                            cantidad: Number(a.cantidad) || 1
+                        }));
+                    }
+                }
+            } catch (e) {
+                console.error('Error cargando bienes:', e);
+            }
+        }
+
+        function saveAssets() {
+            localStorage.setItem(ASSETS_STORAGE_KEY, JSON.stringify(assets));
+        }
+
+        // -------------------------------------------------------------------------
+        // GESTIÓN DE FONDOS / ASIGNACIONES
+        // -------------------------------------------------------------------------
+        function populateFundSelectors() {
+            const inputFondo = document.getElementById('input-fondo');
+            const filterFondo = document.getElementById('filter-fondo');
+            const assetFondo = document.getElementById('asset-finance-fondo');
+
+            const prevInput = inputFondo ? inputFondo.value : '';
+            const prevFilter = filterFondo ? filterFondo.value : 'TODOS';
+            const prevAsset = assetFondo ? assetFondo.value : '';
+
+            if (inputFondo) {
+                inputFondo.innerHTML = '';
+                funds.forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f;
+                    opt.textContent = f;
+                    inputFondo.appendChild(opt);
+                });
+                const optNinguno = document.createElement('option');
+                optNinguno.value = 'NINGUNO';
+                optNinguno.textContent = 'NINGUNO (EFECTIVO LIBRE)';
+                inputFondo.appendChild(optNinguno);
+
+                if (prevInput && (funds.includes(prevInput) || prevInput === 'NINGUNO')) {
+                    inputFondo.value = prevInput;
+                }
+            }
+
+            if (filterFondo) {
+                filterFondo.innerHTML = '<option value="TODOS">FONDO: TODOS</option>';
+                funds.forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f;
+                    opt.textContent = `FONDO: ${f}`;
+                    filterFondo.appendChild(opt);
+                });
+                const optNinguno = document.createElement('option');
+                optNinguno.value = 'NINGUNO';
+                optNinguno.textContent = 'FONDO: NINGUNO (LIBRE)';
+                filterFondo.appendChild(optNinguno);
+
+                if (prevFilter) filterFondo.value = prevFilter;
+            }
+
+            if (assetFondo) {
+                assetFondo.innerHTML = '';
+                funds.forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f;
+                    opt.textContent = `CARGAR A FONDO: ${f}`;
+                    assetFondo.appendChild(opt);
+                });
+                const optNinguno = document.createElement('option');
+                optNinguno.value = 'NINGUNO';
+                optNinguno.textContent = 'CARGAR A: NINGUNO (EFECTIVO LIBRE)';
+                assetFondo.appendChild(optNinguno);
+
+                if (prevAsset) assetFondo.value = prevAsset;
+            }
+
+            updateFundImpactHint();
+        }
+
+        function updateFundImpactHint() {
+            const fondo = document.getElementById('input-fondo')?.value || '';
+            const cuenta = document.getElementById('input-cuenta')?.value || 'CAJA CHICA';
+            const hintText = document.getElementById('fund-impact-hint-text');
+            if (!hintText) return;
+
+            if (fondo === 'NINGUNO') {
+                hintText.textContent = `Este movimiento afectará directamente el saldo libre de ${cuenta}.`;
+            } else {
+                hintText.textContent = `Este movimiento afectará únicamente el saldo independiente de "${fondo}" (vía ${cuenta}).`;
+            }
+        }
+
+        function openFundModal(mode) {
+            const modal = document.getElementById('fund-modal');
+            const title = document.getElementById('fund-modal-title');
+            const input = document.getElementById('fund-modal-input');
+            const modeInput = document.getElementById('fund-modal-mode');
+            const oldNameInput = document.getElementById('fund-modal-old-name');
+
+            modeInput.value = mode;
+
+            if (mode === 'edit') {
+                const currentFund = document.getElementById('input-fondo')?.value || '';
+                if (!currentFund || currentFund === 'NINGUNO') {
+                    showToast('Seleccione un fondo específico para poder editar su nombre.', 'info');
+                    return;
+                }
+                title.textContent = 'Editar Nombre del Fondo';
+                oldNameInput.value = currentFund;
+                input.value = currentFund;
+            } else {
+                title.textContent = 'Crear Nuevo Fondo';
+                oldNameInput.value = '';
+                input.value = '';
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => input.focus(), 50);
+        }
+
+        function closeFundModal() {
+            const modal = document.getElementById('fund-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function handleFundModalSubmit(e) {
+            e.preventDefault();
+            const mode = document.getElementById('fund-modal-mode').value;
+            const oldName = document.getElementById('fund-modal-old-name').value.trim().toUpperCase();
+            const newName = document.getElementById('fund-modal-input').value.trim().toUpperCase();
+
+            if (!newName || newName === 'NINGUNO') {
+                showToast('Ingrese un nombre de fondo válido.', 'error');
+                return;
+            }
+
+            if (mode === 'create') {
+                if (funds.includes(newName)) {
+                    showToast('Ese fondo ya existe en la lista.', 'info');
+                    closeFundModal();
+                    return;
+                }
+                funds.push(newName);
+                saveFunds();
+                populateFundSelectors();
+                const inputFondo = document.getElementById('input-fondo');
+                if (inputFondo) inputFondo.value = newName;
+                updateFundImpactHint();
+                refreshAllViews();
+                showToast(`Fondo "${newName}" creado correctamente.`, 'success');
+            } else if (mode === 'edit') {
+                if (newName !== oldName && funds.includes(newName)) {
+                    showToast('Ya existe otro fondo con ese nombre.', 'error');
+                    return;
+                }
+                const idx = funds.indexOf(oldName);
+                if (idx !== -1) {
+                    funds[idx] = newName;
+                }
+                movements.forEach(m => {
+                    if ((m.fondo || '').toUpperCase() === oldName) {
+                        m.fondo = newName;
+                    }
+                });
+                saveFunds();
+                saveMovements();
+                populateFundSelectors();
+                const inputFondo = document.getElementById('input-fondo');
+                if (inputFondo) inputFondo.value = newName;
+                updateFundImpactHint();
+                refreshAllViews();
+                showToast(`Fondo actualizado a "${newName}".`, 'success');
+            }
+
+            closeFundModal();
+        }
+
+        // -------------------------------------------------------------------------
+        // FORMATEO DE FECHAS, MONEDA Y ENTRADAS DE FORMULARIO
+        // -------------------------------------------------------------------------
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            const inputFecha = document.getElementById('input-fecha');
+            const assetFecha = document.getElementById('asset-fecha');
+            if (inputFecha && !inputFecha.value) inputFecha.value = today;
+            if (assetFecha && !assetFecha.value) assetFecha.value = today;
+        }
+
+        function formatDateDisplay(isoDate) {
+            if (!isoDate) return '';
+            const parts = isoDate.split('-');
+            if (parts.length !== 3) return isoDate;
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        function formatCurrency(amount) {
+            const num = Number(amount) || 0;
+            const sign = num < 0 ? '-' : '';
+            const absFormatted = Math.abs(num).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            return `${sign}L. ${absFormatted}`;
+        }
+
+        function formatNumberInput(amount) {
+            const num = Number(amount) || 0;
+            return num.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function parseCurrencyInput(str) {
+            if (!str) return 0;
+            const clean = String(str).replace(/[^0-9.]/g, '');
+            const val = parseFloat(clean);
+            return isNaN(val) ? 0 : val;
+        }
+
+        function attachCurrencyMask(inputEl) {
+            if (!inputEl) return;
+            inputEl.addEventListener('input', () => {
+                let raw = inputEl.value.replace(/[^0-9.]/g, '');
+                const parts = raw.split('.');
+                if (parts.length > 2) {
+                    raw = parts[0] + '.' + parts.slice(1).join('');
+                }
+                if (parts[1] && parts[1].length > 2) {
+                    raw = parts[0] + '.' + parts[1].slice(0, 2);
+                }
+                const intPart = parts[0] ? Number(parts[0]).toLocaleString('en-US') : '';
+                inputEl.value = parts.length > 1 ? `${intPart}.${parts[1].slice(0, 2)}` : intPart;
+            });
+            inputEl.addEventListener('blur', () => {
+                const val = parseCurrencyInput(inputEl.value);
+                if (val > 0) inputEl.value = formatNumberInput(val);
+            });
+        }
+
+        function setupFormInputs() {
+            const form = document.getElementById('movement-form');
+            const obsInput = document.getElementById('input-observacion');
+            const valorInput = document.getElementById('input-valor');
+            const cuentaSelect = document.getElementById('input-cuenta');
+
+            if (obsInput) {
+                obsInput.addEventListener('input', () => {
+                    obsInput.value = obsInput.value.toUpperCase();
+                });
+            }
+            if (cuentaSelect) {
+                cuentaSelect.addEventListener('change', updateFundImpactHint);
+            }
+            attachCurrencyMask(valorInput);
+
+            if (form) {
+                form.addEventListener('submit', handleMovementFormSubmit);
+            }
+        }
+
+        function setupAssetFormInputs() {
+            const form = document.getElementById('asset-form');
+            const descInput = document.getElementById('asset-descripcion');
+            const obsInput = document.getElementById('asset-observacion');
+            const valorInput = document.getElementById('asset-valor');
+
+            if (descInput) {
+                descInput.addEventListener('input', () => {
+                    descInput.value = descInput.value.toUpperCase();
+                });
+            }
+            if (obsInput) {
+                obsInput.addEventListener('input', () => {
+                    obsInput.value = obsInput.value.toUpperCase();
+                });
+            }
+            attachCurrencyMask(valorInput);
+
+            if (form) {
+                form.addEventListener('submit', handleAssetFormSubmit);
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // CRUD DE MOVIMIENTOS FINANCIEROS
+        // -------------------------------------------------------------------------
+        function handleMovementFormSubmit(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('edit-id').value.trim();
+            const fecha = document.getElementById('input-fecha').value;
+            const movimiento = document.getElementById('input-movimiento').value.toUpperCase();
+            const cuenta = document.getElementById('input-cuenta').value.toUpperCase();
+            const fondo = document.getElementById('input-fondo').value.toUpperCase();
+            const valor = parseCurrencyInput(document.getElementById('input-valor').value);
+            const observacion = document.getElementById('input-observacion').value.trim().toUpperCase();
+
+            if (!fecha) {
+                showToast('Seleccione la fecha del movimiento.', 'error');
+                return;
+            }
+            if (valor <= 0) {
+                showToast('El valor debe ser mayor a L. 0.00.', 'error');
+                document.getElementById('input-valor').focus();
+                return;
+            }
+            if (!observacion) {
+                showToast('Ingrese una observación o detalle del movimiento.', 'error');
+                document.getElementById('input-observacion').focus();
+                return;
+            }
+
+            if (editId) {
+                const idx = movements.findIndex(m => m.id === editId);
+                if (idx !== -1) {
+                    movements[idx] = {
+                        ...movements[idx],
+                        fecha,
+                        movimiento,
+                        cuenta,
+                        fondo,
+                        valor,
+                        observacion,
+                        updatedAt: Date.now()
+                    };
+                    showToast('Movimiento actualizado correctamente.', 'success');
+                }
+                resetMovementFormState();
+                saveMovements();
+                refreshAllViews();
+                switchTab('historial');
+            } else {
+                movements.push({
+                    id: 'MOV-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase(),
+                    fecha,
+                    movimiento,
+                    cuenta,
+                    fondo,
+                    valor,
+                    observacion,
+                    createdAt: Date.now()
+                });
+                resetMovementFormState();
+                saveMovements();
+                refreshAllViews();
+                showToast('Movimiento registrado correctamente.', 'success');
+            }
+        }
+
+        function editMovement(id) {
+            const item = movements.find(m => m.id === id);
+            if (!item) return;
+
+            const movFondo = (item.fondo || 'APORTACIONES').toUpperCase();
+            if (movFondo !== 'NINGUNO' && !funds.includes(movFondo)) {
+                funds.push(movFondo);
+                saveFunds();
+                populateFundSelectors();
+            }
+
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('input-fecha').value = item.fecha;
+            document.getElementById('input-movimiento').value = item.movimiento;
+            document.getElementById('input-cuenta').value = item.cuenta;
+            document.getElementById('input-fondo').value = movFondo;
+            document.getElementById('input-valor').value = formatNumberInput(item.valor);
+            document.getElementById('input-observacion').value = item.observacion;
+
+            document.getElementById('form-title').textContent = 'Editar Movimiento';
+            document.getElementById('edit-mode-badge').classList.remove('hidden');
+            document.getElementById('btn-cancel-edit').classList.remove('hidden');
+            document.getElementById('btn-submit-text').textContent = 'Actualizar Movimiento';
+            updateFundImpactHint();
+
+            switchTab('nuevo');
+        }
+
+        function deleteMovement(id) {
+            const item = movements.find(m => m.id === id);
+            if (!item) return;
+
+            openConfirmModal(
+                'Eliminar Movimiento',
+                `¿Está seguro de eliminar el ${item.movimiento} de ${formatCurrency(item.valor)} (${item.observacion})?`,
+                () => {
+                    movements = movements.filter(m => m.id !== id);
+                    if (document.getElementById('edit-id').value === id) {
+                        resetMovementFormState();
+                    }
+                    saveMovements();
+                    refreshAllViews();
+                    showToast('Movimiento eliminado correctamente.', 'success');
+                }
+            );
+        }
+
+        function cancelEdit() {
+            resetMovementFormState();
+            showToast('Edición cancelada.', 'info');
+        }
+
+        function resetMovementFormState() {
+            document.getElementById('edit-id').value = '';
+            document.getElementById('input-fecha').value = new Date().toISOString().split('T')[0];
+            document.getElementById('input-movimiento').value = 'INGRESO';
+            document.getElementById('input-cuenta').value = 'CAJA CHICA';
+            if (funds.length > 0) document.getElementById('input-fondo').value = funds[0];
+            document.getElementById('input-valor').value = '';
+            document.getElementById('input-observacion').value = '';
+
+            document.getElementById('form-title').textContent = 'Registrar Nuevo Movimiento';
+            document.getElementById('edit-mode-badge').classList.add('hidden');
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
+            document.getElementById('btn-submit-text').textContent = 'Guardar Movimiento';
+            updateFundImpactHint();
+        }
+
+        // -------------------------------------------------------------------------
+        // RENDERIZADO DE DASHBOARD, RESÚMENES MENSUALES Y ACTUALIZACIÓN GLOBAL
+        // -------------------------------------------------------------------------
+        function refreshAllViews() {
+            const badgeCount = document.getElementById('badge-count');
+            const badgeAssets = document.getElementById('badge-assets-count');
+            if (badgeCount) badgeCount.textContent = movements.length;
+            if (badgeAssets) badgeAssets.textContent = assets.length;
+
+            populateYearSelector();
+            renderDashboard();
+            renderHistory();
+            renderSummary();
+            renderAssets();
+        }
+
+        function renderDashboard() {
+            let saldoCajaLibre = 0;
+            let saldoBancoLibre = 0;
+            const fundBalances = {};
+            funds.forEach(f => { fundBalances[f] = 0; });
+
+            const now = new Date();
+            const currentPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            let monthIngresos = 0;
+            let monthEgresos = 0;
+
+            movements.forEach(m => {
+                const signed = m.movimiento === 'INGRESO' ? m.valor : -m.valor;
+                const mFondo = (m.fondo || 'APORTACIONES').toUpperCase();
+
+                if (mFondo === 'NINGUNO') {
+                    if (m.cuenta === 'CAJA CHICA') saldoCajaLibre += signed;
+                    else if (m.cuenta === 'BANCO') saldoBancoLibre += signed;
+                } else {
+                    if (fundBalances[mFondo] === undefined) fundBalances[mFondo] = 0;
+                    fundBalances[mFondo] += signed;
+                }
+
+                if (m.fecha && m.fecha.startsWith(currentPrefix)) {
+                    if (m.movimiento === 'INGRESO') monthIngresos += m.valor;
+                    else monthEgresos += m.valor;
+                }
+            });
+
+            let totalFondos = 0;
+            Object.values(fundBalances).forEach(val => { totalFondos += val; });
+            const totalConsolidado = saldoCajaLibre + saldoBancoLibre + totalFondos;
+
+            const elCaja = document.getElementById('card-saldo-caja');
+            const elBanco = document.getElementById('card-saldo-banco');
+            const elTotal = document.getElementById('card-saldo-total');
+            if (elCaja) elCaja.textContent = formatCurrency(saldoCajaLibre);
+            if (elBanco) elBanco.textContent = formatCurrency(saldoBancoLibre);
+            if (elTotal) elTotal.textContent = formatCurrency(totalConsolidado);
+
+            // Renderizar tarjetas compactas de cada fondo/proyecto
+            const inlineContainer = document.getElementById('dash-funds-inline-cards');
+            if (inlineContainer) {
+                inlineContainer.innerHTML = '';
+                Object.keys(fundBalances).forEach(fName => {
+                    const fVal = fundBalances[fName];
+                    const card = document.createElement('div');
+                    card.className = 'bg-white/10 backdrop-blur-md border border-white/15 rounded-xl p-3.5 flex items-center justify-between';
+                    card.innerHTML = `
+                        <div class="min-w-0 pr-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-200 block truncate">${escapeHTML(fName)}</span>
+                            <span class="text-lg sm:text-xl font-extrabold text-white tracking-tight block mt-0.5">${formatCurrency(fVal)}</span>
+                        </div>
+                        <div class="w-9 h-9 rounded-lg bg-indigo-500/25 border border-indigo-400/30 flex items-center justify-center text-indigo-200 shrink-0">
+                            <i class="ph-duotone ph-folder-open text-lg"></i>
+                        </div>
+                    `;
+                    inlineContainer.appendChild(card);
+                });
+            }
+
+            // Flujo del mes actual
+            const monthLabel = document.getElementById('dash-current-month-label');
+            if (monthLabel) monthLabel.textContent = `${MONTH_NAMES[now.getMonth()]} ${now.getFullYear()}`;
+
+            const elIng = document.getElementById('dash-month-ingresos');
+            const elEgr = document.getElementById('dash-month-egresos');
+            const elBal = document.getElementById('dash-month-balance');
+            const barIng = document.getElementById('dash-bar-ingresos');
+            const barEgr = document.getElementById('dash-bar-egresos');
+
+            if (elIng) elIng.textContent = formatCurrency(monthIngresos);
+            if (elEgr) elEgr.textContent = formatCurrency(monthEgresos);
+            if (elBal) elBal.textContent = formatCurrency(monthIngresos - monthEgresos);
+
+            const maxFlow = Math.max(monthIngresos, monthEgresos, 1);
+            if (barIng) barIng.style.width = `${Math.round((monthIngresos / maxFlow) * 100)}%`;
+            if (barEgr) barEgr.style.width = `${Math.round((monthEgresos / maxFlow) * 100)}%`;
+
+            // Últimos 5 movimientos
+            const recentBody = document.getElementById('dash-recent-body');
+            const recentEmpty = document.getElementById('dash-recent-empty');
+            const totalOps = document.getElementById('dash-total-ops');
+            if (totalOps) totalOps.textContent = movements.length;
+
+            if (recentBody && recentEmpty) {
+                recentBody.innerHTML = '';
+                if (movements.length === 0) {
+                    recentEmpty.classList.remove('hidden');
+                } else {
+                    recentEmpty.classList.add('hidden');
+                    const recent = [...movements]
+                        .sort((a, b) => (a.fecha !== b.fecha ? b.fecha.localeCompare(a.fecha) : (b.createdAt || 0) - (a.createdAt || 0)))
+                        .slice(0, 5);
+
+                    recent.forEach(m => {
+                        const isIngreso = m.movimiento === 'INGRESO';
+                        const movFondo = (m.fondo || 'APORTACIONES').toUpperCase();
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-slate-50 transition-colors';
+                        tr.innerHTML = `
+                            <td class="py-2.5 px-4 whitespace-nowrap font-semibold text-slate-600 text-xs">${formatDateDisplay(m.fecha)}</td>
+                            <td class="py-2.5 px-4 whitespace-nowrap text-xs">
+                                <span class="font-bold text-slate-800">${m.cuenta}</span>
+                                <span class="block text-[10px] font-semibold text-indigo-700">${movFondo === 'NINGUNO' ? 'LIBRE' : escapeHTML(movFondo)}</span>
+                            </td>
+                            <td class="py-2.5 px-4 text-xs text-slate-700 font-medium max-w-[180px] truncate">${escapeHTML(m.observacion)}</td>
+                            <td class="py-2.5 px-4 whitespace-nowrap text-right font-extrabold text-xs ${isIngreso ? 'text-emerald-700' : 'text-rose-700'}">
+                                ${isIngreso ? '+' : '-'} ${formatCurrency(m.valor)}
+                            </td>
+                        `;
+                        recentBody.appendChild(tr);
+                    });
+                }
+            }
+        }
+
+        function populateYearSelector() {
+            const yearSelect = document.getElementById('summary-year');
+            if (!yearSelect) return;
+            const currentYear = new Date().getFullYear();
+            const prevSelected = yearSelect.value;
+
+            const yearsSet = new Set([currentYear]);
+            movements.forEach(m => {
+                if (m.fecha && m.fecha.length >= 4) {
+                    const y = parseInt(m.fecha.substring(0, 4), 10);
+                    if (!isNaN(y)) yearsSet.add(y);
+                }
+            });
+
+            const sortedYears = Array.from(yearsSet).sort((a, b) => b - a);
+            yearSelect.innerHTML = '';
+            sortedYears.forEach(y => {
+                const opt = document.createElement('option');
+                opt.value = String(y);
+                opt.textContent = String(y);
+                yearSelect.appendChild(opt);
+            });
+
+            if (prevSelected && yearsSet.has(parseInt(prevSelected, 10))) {
+                yearSelect.value = prevSelected;
+            } else {
+                yearSelect.value = String(currentYear);
+            }
+        }
+
+        function renderSummary() {
+            const yearSelect = document.getElementById('summary-year');
+            const tbody = document.getElementById('summary-table-body');
+            const tfoot = document.getElementById('summary-table-foot');
+            const fundsBody = document.getElementById('summary-funds-body');
+            const fundYearLabel = document.getElementById('summary-fund-year-label');
+
+            if (!yearSelect || !tbody || !tfoot) return;
+            const selectedYear = parseInt(yearSelect.value, 10) || new Date().getFullYear();
+            if (fundYearLabel) fundYearLabel.textContent = selectedYear;
+
+            // Saldos iniciales arrastrados antes del año seleccionado
+            let accCaja = 0;
+            let accBanco = 0;
+            let accFondos = 0;
+
+            movements.forEach(m => {
+                if (!m.fecha) return;
+                const y = parseInt(m.fecha.substring(0, 4), 10);
+                if (y < selectedYear) {
+                    const signed = m.movimiento === 'INGRESO' ? m.valor : -m.valor;
+                    const mFondo = (m.fondo || 'APORTACIONES').toUpperCase();
+                    if (mFondo === 'NINGUNO') {
+                        if (m.cuenta === 'CAJA CHICA') accCaja += signed;
+                        else if (m.cuenta === 'BANCO') accBanco += signed;
+                    } else {
+                        accFondos += signed;
+                    }
+                }
+            });
+
+            let totIngCaja = 0, totEgrCaja = 0, totIngBanco = 0, totEgrBanco = 0;
+            tbody.innerHTML = '';
+
+            for (let mIdx = 0; mIdx < 12; mIdx++) {
+                const prefix = `${selectedYear}-${String(mIdx + 1).padStart(2, '0')}`;
+                let ingCaja = 0, egrCaja = 0, ingBanco = 0, egrBanco = 0, netoFondosMes = 0;
+
+                movements.forEach(m => {
+                    if (m.fecha && m.fecha.startsWith(prefix)) {
+                        const mFondo = (m.fondo || 'APORTACIONES').toUpperCase();
+                        if (mFondo === 'NINGUNO') {
+                            if (m.cuenta === 'CAJA CHICA') {
+                                if (m.movimiento === 'INGRESO') ingCaja += m.valor;
+                                else egrCaja += m.valor;
+                            } else if (m.cuenta === 'BANCO') {
+                                if (m.movimiento === 'INGRESO') ingBanco += m.valor;
+                                else egrBanco += m.valor;
+                            }
+                        } else {
+                            netoFondosMes += (m.movimiento === 'INGRESO' ? m.valor : -m.valor);
+                        }
+                    }
+                });
+
+                accCaja += (ingCaja - egrCaja);
+                accBanco += (ingBanco - egrBanco);
+                accFondos += netoFondosMes;
+
+                totIngCaja += ingCaja;
+                totEgrCaja += egrCaja;
+                totIngBanco += ingBanco;
+                totEgrBanco += egrBanco;
+
+                const consolidadoMes = accCaja + accBanco + accFondos;
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="py-2.5 px-4 font-bold text-slate-800 border-r border-slate-200">${MONTH_NAMES[mIdx]}</td>
+                    <td class="py-2.5 px-3 text-right text-emerald-700 font-medium">${formatCurrency(ingCaja)}</td>
+                    <td class="py-2.5 px-3 text-right text-rose-700 font-medium">${formatCurrency(egrCaja)}</td>
+                    <td class="py-2.5 px-3 text-right font-extrabold text-amber-900 bg-amber-50/40 border-r border-slate-200">${formatCurrency(accCaja)}</td>
+                    <td class="py-2.5 px-3 text-right text-emerald-700 font-medium">${formatCurrency(ingBanco)}</td>
+                    <td class="py-2.5 px-3 text-right text-rose-700 font-medium">${formatCurrency(egrBanco)}</td>
+                    <td class="py-2.5 px-3 text-right font-extrabold text-sky-900 bg-sky-50/40 border-r border-slate-200">${formatCurrency(accBanco)}</td>
+                    <td class="py-2.5 px-4 text-right font-extrabold text-emerald-900 bg-emerald-50/40">${formatCurrency(consolidadoMes)}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+
+            tfoot.innerHTML = `
+                <tr>
+                    <td class="py-3 px-4 border-r border-slate-300">TOTALES ${selectedYear}</td>
+                    <td class="py-3 px-3 text-right text-emerald-800">${formatCurrency(totIngCaja)}</td>
+                    <td class="py-3 px-3 text-right text-rose-800">${formatCurrency(totEgrCaja)}</td>
+                    <td class="py-3 px-3 text-right text-amber-950 border-r border-slate-300">${formatCurrency(accCaja)}</td>
+                    <td class="py-3 px-3 text-right text-emerald-800">${formatCurrency(totIngBanco)}</td>
+                    <td class="py-3 px-3 text-right text-rose-800">${formatCurrency(totEgrBanco)}</td>
+                    <td class="py-3 px-3 text-right text-sky-950 border-r border-slate-300">${formatCurrency(accBanco)}</td>
+                    <td class="py-3 px-4 text-right text-emerald-950">${formatCurrency(accCaja + accBanco + accFondos)}</td>
+                </tr>
+            `;
+
+            // Tabla anual por fondo
+            if (fundsBody) {
+                fundsBody.innerHTML = '';
+                const allFundNames = new Set(funds);
+                movements.forEach(m => {
+                    const f = (m.fondo || 'APORTACIONES').toUpperCase();
+                    if (f !== 'NINGUNO') allFundNames.add(f);
+                });
+
+                allFundNames.forEach(fName => {
+                    let inicial = 0, ingAnio = 0, egrAnio = 0;
+                    movements.forEach(m => {
+                        if ((m.fondo || 'APORTACIONES').toUpperCase() === fName && m.fecha) {
+                            const y = parseInt(m.fecha.substring(0, 4), 10);
+                            if (y < selectedYear) {
+                                inicial += (m.movimiento === 'INGRESO' ? m.valor : -m.valor);
+                            } else if (y === selectedYear) {
+                                if (m.movimiento === 'INGRESO') ingAnio += m.valor;
+                                else egrAnio += m.valor;
+                            }
+                        }
+                    });
+                    const finalDisp = inicial + ingAnio - egrAnio;
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50';
+                    tr.innerHTML = `
+                        <td class="py-2.5 px-4 font-bold text-slate-800">${escapeHTML(fName)}</td>
+                        <td class="py-2.5 px-4 text-right text-slate-600 font-semibold">${formatCurrency(inicial)}</td>
+                        <td class="py-2.5 px-4 text-right text-emerald-700 font-semibold">${formatCurrency(ingAnio)}</td>
+                        <td class="py-2.5 px-4 text-right text-rose-700 font-semibold">${formatCurrency(egrAnio)}</td>
+                        <td class="py-2.5 px-4 text-right font-extrabold text-indigo-900 bg-indigo-50/40">${formatCurrency(finalDisp)}</td>
+                    `;
+                    fundsBody.appendChild(tr);
+                });
+            }
+        }
+
+        async function exportSummaryToPDF() {
+            try {
+                const selectedYear = document.getElementById('summary-year')?.value || new Date().getFullYear();
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter' });
+
+                const now = new Date();
+                const fechaGen = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+
+                doc.setFillColor(12, 74, 110);
+                doc.rect(0, 0, 280, 24, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(16);
+                doc.text(`FINANZAS FDPO - RESUMEN MENSUAL ${selectedYear}`, 14, 11);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9.5);
+                doc.text(`Saldos de Caja Chica, Bancos y Consolidado Anual • Emitido: ${fechaGen}`, 14, 18);
+
+                doc.autoTable({
+                    html: '#summary-table',
+                    startY: 29,
+                    theme: 'grid',
+                    styles: { font: 'helvetica', fontSize: 7.5, cellPadding: 2 },
+                    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+                    footStyles: { fillColor: [241, 245, 249], textColor: [15, 23, 42], fontStyle: 'bold' }
+                });
+
+                const fileName = `Finanzas_FDPO_Resumen_Mensual_${selectedYear}.pdf`;
+                const pdfBlob = doc.output('blob');
+
+                if (window.showSaveFilePicker) {
+                    try {
+                        const fileHandle = await window.showSaveFilePicker({
+                            suggestedName: fileName,
+                            types: [{ description: 'Documento PDF', accept: { 'application/pdf': ['.pdf'] } }]
+                        });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(pdfBlob);
+                        await writable.close();
+                        showToast('Resumen PDF guardado en la carpeta seleccionada.', 'success');
+                        return;
+                    } catch (pickerErr) {
+                        if (pickerErr.name === 'AbortError') return;
+                    }
+                }
+
+                doc.save(fileName);
+                showToast('Resumen PDF descargado correctamente.', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Error al exportar el resumen a PDF.', 'error');
+            }
+        }
 
         /**
          * Obtiene los movimientos filtrados y ordenados para la Pestaña 3
