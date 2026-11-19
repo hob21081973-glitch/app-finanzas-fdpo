@@ -306,14 +306,22 @@
                     <input type="hidden" id="edit-id" value="">
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <!-- Fecha del Movimiento -->
+                        <!-- Fecha del Movimiento (Selector Adaptable Día / Mes / Año) -->
                         <div>
-                            <label for="input-fecha" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                                 Fecha del Movimiento <span class="text-red-500">*</span>
                             </label>
-                            <div class="relative">
-                                <input type="date" id="input-fecha" required
-                                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow">
+                            <input type="hidden" id="input-fecha" required>
+                            <div class="grid grid-cols-12 gap-1.5">
+                                <select id="input-fecha-dia" aria-label="Día" onchange="syncDateSelects('input-fecha')"
+                                    class="col-span-3 w-full rounded-xl border border-slate-300 px-2 py-2.5 text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </select>
+                                <select id="input-fecha-mes" aria-label="Mes" onchange="syncDateSelects('input-fecha')"
+                                    class="col-span-5 w-full rounded-xl border border-slate-300 px-2 py-2.5 text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </select>
+                                <select id="input-fecha-anio" aria-label="Año" onchange="syncDateSelects('input-fecha')"
+                                    class="col-span-4 w-full rounded-xl border border-slate-300 px-2 py-2.5 text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </select>
                             </div>
                         </div>
 
@@ -421,24 +429,24 @@
                     </div>
 
                     <!-- Filtros Discretos y Exportación PDF -->
-                    <div class="flex flex-wrap items-center gap-2.5">
-                        <select id="filter-cuenta" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <div class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
+                        <select id="filter-cuenta" onchange="renderHistory()" class="w-full sm:w-auto max-w-full truncate rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="TODAS">CUENTA: TODAS</option>
                             <option value="CAJA CHICA">CAJA CHICA</option>
                             <option value="BANCO">BANCO</option>
                         </select>
 
-                        <select id="filter-fondo" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <select id="filter-fondo" onchange="renderHistory()" class="w-full sm:w-56 max-w-full truncate rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="TODOS">FONDO: TODOS</option>
                         </select>
 
-                        <select id="filter-tipo" onchange="renderHistory()" class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <select id="filter-tipo" onchange="renderHistory()" class="w-full sm:w-auto max-w-full truncate rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="TODOS">TIPO: TODOS</option>
                             <option value="INGRESO">INGRESOS</option>
                             <option value="EGRESO">EGRESOS</option>
                         </select>
 
-                        <button onclick="exportHistoryToPDF()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-sm shadow-rose-600/20 transition-all">
+                        <button onclick="exportHistoryToPDF()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-sm shadow-rose-600/20 transition-all">
                             <i class="ph-bold ph-file-pdf text-base"></i>
                             <span>Generar Reporte PDF</span>
                         </button>
@@ -632,13 +640,23 @@
                         <input type="hidden" id="asset-edit-id" value="">
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- Fecha -->
+                            <!-- Fecha (Selector Adaptable Día / Mes / Año) -->
                             <div>
-                                <label for="asset-fecha" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                                     Fecha <span class="text-red-500">*</span>
                                 </label>
-                                <input type="date" id="asset-fecha" required
-                                    class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <input type="hidden" id="asset-fecha" required>
+                                <div class="grid grid-cols-12 gap-1">
+                                    <select id="asset-fecha-dia" aria-label="Día" onchange="syncDateSelects('asset-fecha')"
+                                        class="col-span-3 w-full rounded-xl border border-slate-300 px-1.5 py-2 text-xs sm:text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    </select>
+                                    <select id="asset-fecha-mes" aria-label="Mes" onchange="syncDateSelects('asset-fecha')"
+                                        class="col-span-5 w-full rounded-xl border border-slate-300 px-1.5 py-2 text-xs sm:text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    </select>
+                                    <select id="asset-fecha-anio" aria-label="Año" onchange="syncDateSelects('asset-fecha')"
+                                        class="col-span-4 w-full rounded-xl border border-slate-300 px-1.5 py-2 text-xs sm:text-sm font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    </select>
+                                </div>
                             </div>
 
                             <!-- Tipo de Gestión (ALTA / BAJA) -->
@@ -912,6 +930,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('footer-year').textContent = new Date().getFullYear();
             
+            // Inicializar selectores de fecha adaptables
+            initDateSelectors('input-fecha');
+            initDateSelectors('asset-fecha');
+
             // Cargar datos desde localStorage
             loadFunds();
             loadMovements();
@@ -1187,12 +1209,89 @@
         // -------------------------------------------------------------------------
         // FORMATEO DE FECHAS, MONEDA Y ENTRADAS DE FORMULARIO
         // -------------------------------------------------------------------------
+        function initDateSelectors(prefix) {
+            const diaEl = document.getElementById(`${prefix}-dia`);
+            const mesEl = document.getElementById(`${prefix}-mes`);
+            const anioEl = document.getElementById(`${prefix}-anio`);
+            if (!diaEl || !mesEl || !anioEl) return;
+
+            diaEl.innerHTML = '';
+            for (let d = 1; d <= 31; d++) {
+                const val = String(d).padStart(2, '0');
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = val;
+                diaEl.appendChild(opt);
+            }
+
+            const shortMonths = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+            mesEl.innerHTML = '';
+            shortMonths.forEach((mName, idx) => {
+                const val = String(idx + 1).padStart(2, '0');
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = mName;
+                mesEl.appendChild(opt);
+            });
+
+            const currentYear = new Date().getFullYear();
+            anioEl.innerHTML = '';
+            for (let y = currentYear - 5; y <= currentYear + 5; y++) {
+                const opt = document.createElement('option');
+                opt.value = String(y);
+                opt.textContent = String(y);
+                anioEl.appendChild(opt);
+            }
+        }
+
+        function setDateToSelectors(prefix, isoDate) {
+            const hiddenEl = document.getElementById(prefix);
+            const diaEl = document.getElementById(`${prefix}-dia`);
+            const mesEl = document.getElementById(`${prefix}-mes`);
+            const anioEl = document.getElementById(`${prefix}-anio`);
+            if (!hiddenEl) return;
+
+            const parts = (isoDate || '').split('-');
+            if (parts.length === 3 && diaEl && mesEl && anioEl) {
+                if (!Array.from(anioEl.options).some(o => o.value === parts[0])) {
+                    const opt = document.createElement('option');
+                    opt.value = parts[0];
+                    opt.textContent = parts[0];
+                    anioEl.appendChild(opt);
+                }
+                anioEl.value = parts[0];
+                mesEl.value = parts[1];
+                diaEl.value = parts[2];
+                syncDateSelects(prefix);
+            } else {
+                hiddenEl.value = isoDate;
+            }
+        }
+
+        function syncDateSelects(prefix) {
+            const hiddenEl = document.getElementById(prefix);
+            const diaEl = document.getElementById(`${prefix}-dia`);
+            const mesEl = document.getElementById(`${prefix}-mes`);
+            const anioEl = document.getElementById(`${prefix}-anio`);
+            if (!hiddenEl || !diaEl || !mesEl || !anioEl) return;
+
+            const year = parseInt(anioEl.value, 10);
+            const month = parseInt(mesEl.value, 10);
+            const maxDays = new Date(year, month, 0).getDate();
+
+            if (parseInt(diaEl.value, 10) > maxDays) {
+                diaEl.value = String(maxDays).padStart(2, '0');
+            }
+            hiddenEl.value = `${anioEl.value}-${mesEl.value}-${diaEl.value}`;
+        }
+
         function setTodayDate() {
-            const today = new Date().toISOString().split('T')[0];
+            const now = new Date();
+            const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             const inputFecha = document.getElementById('input-fecha');
             const assetFecha = document.getElementById('asset-fecha');
-            if (inputFecha && !inputFecha.value) inputFecha.value = today;
-            if (assetFecha && !assetFecha.value) assetFecha.value = today;
+            if (inputFecha && !inputFecha.value) setDateToSelectors('input-fecha', today);
+            if (assetFecha && !assetFecha.value) setDateToSelectors('asset-fecha', today);
         }
 
         function formatDateDisplay(isoDate) {
@@ -1369,7 +1468,7 @@
             }
 
             document.getElementById('edit-id').value = item.id;
-            document.getElementById('input-fecha').value = item.fecha;
+            setDateToSelectors('input-fecha', item.fecha);
             document.getElementById('input-movimiento').value = item.movimiento;
             document.getElementById('input-cuenta').value = item.cuenta;
             document.getElementById('input-fondo').value = movFondo;
@@ -1410,8 +1509,10 @@
         }
 
         function resetMovementFormState() {
+            const now = new Date();
+            const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             document.getElementById('edit-id').value = '';
-            document.getElementById('input-fecha').value = new Date().toISOString().split('T')[0];
+            setDateToSelectors('input-fecha', today);
             document.getElementById('input-movimiento').value = 'INGRESO';
             document.getElementById('input-cuenta').value = 'CAJA CHICA';
             if (funds.length > 0) document.getElementById('input-fondo').value = funds[0];
@@ -2068,7 +2169,7 @@
             if (!item) return;
 
             document.getElementById('asset-edit-id').value = item.id;
-            document.getElementById('asset-fecha').value = item.fecha;
+            setDateToSelectors('asset-fecha', item.fecha);
             document.getElementById('asset-operacion').value = item.operacion;
             document.getElementById('asset-categoria').value = item.categoria;
             document.getElementById('asset-cantidad').value = item.cantidad || 1;
@@ -2129,8 +2230,10 @@
         }
 
         function resetAssetFormState() {
+            const now = new Date();
+            const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             document.getElementById('asset-edit-id').value = '';
-            setTodayDate();
+            setDateToSelectors('asset-fecha', today);
             document.getElementById('asset-operacion').value = 'ALTA';
             document.getElementById('asset-categoria').value = 'EQUIPO DE OFICINA';
             document.getElementById('asset-cantidad').value = 1;
